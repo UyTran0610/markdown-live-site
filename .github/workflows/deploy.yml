@@ -29,9 +29,9 @@ jobs:
       - run: npm ci
       - run: npm test            # 6 self-check, chặn deploy lỗi âm thầm
       - run: npm run build
+      # Pages site phải tạo tay 1 lần: Settings > Pages > Source = GitHub Actions.
+      # GITHUB_TOKEN không tạo được Pages site (enablement: true luôn fail 403), đừng bật lại.
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true        # tự bật Pages, khỏi vào Settings
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
