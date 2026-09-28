@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Markdown Live</title>
+<meta name="description" content="Trình soạn thảo Markdown miễn phí, chỉ 13 MB, cho Windows 10/11. Gõ bên trái, thấy ngay trang hoàn chỉnh bên phải: công thức LaTeX, sơ đồ Mermaid, bảng biểu, code tô màu cú pháp. Xuất sang Word hoặc PDF. Dùng được cả khi không có mạng.">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Markdown Live">
+<meta property="og:description" content="Gõ bên trái, thấy ngay bên phải. Miễn phí, dùng offline, chỉ 13 MB, xuất được sang Word và PDF.">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:image" content="./images/dark-mode.png">
+<link rel="icon" href="./icon-64.png">
+<script>
+  document.documentElement.classList.add('js');
+  if (matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.dataset.theme = 'light';
+</script>
+<link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute"><symbol id="i-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.043-1.61-4.043-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol></svg>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="scrim" aria-hidden="true"></div>
+
+<a class="skip" href="#s-split">Chuyển đến nội dung chính</a>
+
+<header class="nav">
+  <a class="brand" href="#s-hero">
+    <img src="./icon-64.png" width="22" height="22" alt="">
+    <span>Markdown<b>Live</b></span>
+  </a>
+  <nav class="nav-links" aria-label="Các phần của trang">
+    <a href="#s-split">Dùng vào việc gì</a>
+    <a href="#s-math">Tính năng</a>
+    <a href="#s-play">Tải phần mềm</a>
+  </nav>
+  <div class="nav-actions">
+    <button id="theme" class="btn ghost icon" type="button" aria-label="Chuyển giao diện sáng/tối" title="Chuyển giao diện">
+      <svg class="i-moon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.3 5.3l1.9 1.9M14.8 14.8l1.9 1.9M18.7 5.3l-1.9 1.9M9.2 14.8l-1.9 1.9"/></g></svg>
+    </button>
+    <a class="btn ghost sm" href="./" lang="en" title="English" aria-label="Xem bản tiếng Anh">EN</a>
+    <a class="btn primary sm" href="https://github.com/UyTran0610/markdown-live-app/releases">Tải về</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ─────────────────────────── 1 · HERO ─────────────────────────── -->
+  <section id="s-hero" class="sec hero" data-align="center">
+    <p class="eyebrow reveal">Miễn phí &amp; mã nguồn mở · Dùng offline</p>
+    <h1 class="reveal">Gõ bên trái.<br>Xem kết quả bên phải.</h1>
+    <p class="lede reveal">
+      Markdown Live là phần mềm soạn thảo gọn nhẹ cho Windows. Bạn gõ văn bản thuần, trang có
+      định dạng hiện ra ngay khi gõ, kèm công thức toán, sơ đồ, bảng biểu và code tô màu cú
+      pháp. Cần thì xuất sang Word hoặc PDF. Không bao giờ cần đến internet.
+    </p>
+    <div class="cta reveal">
+      <a class="btn primary" href="https://github.com/UyTran0610/markdown-live-app/releases">
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 20h16" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Tải cho Windows
+      </a>
+      <a class="btn ghost" href="https://github.com/UyTran0610/markdown-live-app" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><use href="#i-github"/></svg>
+        Xem mã nguồn
+      </a>
+    </div>
+    <p class="trust reveal">Windows 10/11 64-bit · không cần cài đặt · giấy phép MIT</p>
+    <dl class="stats reveal">
+      <div><dt>Dung lượng</dt><dd>~13<span>MB</span></dd></div>
+      <div><dt>RAM khi rảnh</dt><dd>~5<span>MB</span></dd></div>
+      <div><dt>Khởi động</dt><dd>&lt;0,1<span>s</span></dd></div>
+      <div><dt>Lưu lượng mạng</dt><dd>0<span>byte</span></dd></div>
+    </dl>
+    <p class="scroll-hint reveal" aria-hidden="true">cuộn xuống<span></span></p>
+  </section>
+
+  <!-- ─────────────────────── 2 · SPLIT / THE SEAM ─────────────────── -->
+  <section id="s-split" class="sec split" data-align="corner">
+    <div class="panel reveal">
+      <p class="eyebrow">01 — Soạn thảo hai khung</p>
+      <h2>Gõ văn bản, thấy ngay trang hoàn chỉnh.</h2>
+      <p>
+        Bạn gõ ở khung bên trái, trang hoàn chỉnh hiện ngay ở khung bên phải và cập nhật theo
+        từng phím gõ. Kéo thanh chia ở giữa để tự chia lại không gian cho mỗi khung; kéo sát hẳn
+        về một mép thì phía đó sẽ chiếm trọn cửa sổ.
+      </p>
+      <ul class="ticks">
+        <li>Ba chế độ xem: chỉ soạn thảo, chia đôi màn hình, hoặc chỉ xem trước</li>
+        <li>Có thể bật cuộn đồng bộ để hai khung cuộn cùng nhau</li>
+        <li>Mỗi khung đều nhớ vị trí bạn đang đọc dở</li>
+      </ul>
+      <h4 class="sub">Dùng vào việc gì</h4>
+      <div class="cards">
+        <article class="card">
+          <h3>Báo cáo &amp; luận văn</h3>
+          <p>Công thức, bảng biểu và sơ đồ nằm gọn trong một file. Xuất sang Word là nộp được ngay.</p>
+        </article>
+        <article class="card">
+          <h3>Tài liệu &amp; README</h3>
+          <p>Viết tài liệu kỹ thuật, hướng dẫn kèm đoạn code tô màu cú pháp, xem trước ngay khi gõ.</p>
+        </article>
+        <article class="card">
+          <h3>Ghi chú &amp; blog</h3>
+          <p>Soạn offline, rồi xuất sang HTML hoặc Markdown để đăng ở bất cứ đâu.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div id="seam-handle" class="seam-handle" role="slider" tabindex="0"
+       aria-label="Vị trí thanh chia giữa khung soạn Markdown và khung xem trước"
+       aria-valuemin="8" aria-valuemax="92" aria-valuenow="50" aria-valuetext="50 phần trăm">
+    <span class="grip" aria-hidden="true"></span>
+  </div>
+
+  <!-- ──────────────────── 3 · MATH & DIAGRAMS ────────────────────── -->
+  <section id="s-math" class="sec math" data-align="left">
+    <div class="panel reveal">
+      <p class="eyebrow">02 — Tính năng</p>
+      <h2>Mọi thứ gói gọn trong một tài liệu.</h2>
+      <p>
+        Công thức, sơ đồ và khung lưu ý được viết thẳng trong văn bản, nên vừa hiện ngay ở phần
+        xem trước, vừa đi theo bạn sang mọi định dạng xuất ra. Không phải dán ảnh chụp, cũng
+        không phải dựng lại từ đầu.
+      </p>
+      <div class="cards">
+        <article class="card">
+          <h3>LaTeX</h3>
+          <p class="eq">$E = mc^2$ <span class="eq-r">và cả công thức trên dòng riêng</span></p>
+        </article>
+        <article class="card">
+          <h3>Mermaid</h3>
+          <p class="eq">flowchart · sequence · ERD</p>
+        </article>
+        <article class="card">
+          <h3>Khung lưu ý GFM</h3>
+          <p class="eq"><span class="tag-note">NOTE</span> <span class="tag-tip">TIP</span> <span class="tag-warn">WARNING</span></p>
+        </article>
+      </div>
+      <h4 class="sub">Xuất file</h4>
+      <div class="cards">
+        <article class="card">
+          <h3>Word</h3>
+          <p>File .doc mở được bằng Microsoft Word. Sơ đồ Mermaid tự động chuyển thành hình ảnh.</p>
+        </article>
+        <article class="card">
+          <h3>PDF</h3>
+          <p>Chữ là vector thật: bôi đen, tìm kiếm, copy được, không phải ảnh chụp của trang.</p>
+        </article>
+        <article class="card">
+          <h3>HTML</h3>
+          <p>Một file duy nhất, tự chứa đủ mọi thứ, mở được bằng mọi trình duyệt hoặc đăng thẳng lên website.</p>
+        </article>
+        <article class="card">
+          <h3>Markdown</h3>
+          <p>Xuất lại đúng văn bản gốc, không đổi một ký tự, để dùng với Git, blog hay trang web tĩnh.</p>
+        </article>
+      </div>
+      <ul class="ticks">
+        <li>Mở file .md, .markdown hoặc .txt có sẵn của bạn bằng nút <b>Import</b></li>
+        <li>Có thanh công cụ định dạng nên không cần nhớ cú pháp</li>
+        <li>Nội dung và chế độ xem gần nhất được lưu ngay trên máy, lần sau mở lại là thấy nguyên như cũ</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ───────────────────── 4 · RUST / PERFORMANCE ────────────────── -->
+  <section id="s-perf" class="sec perf" data-align="right">
+    <div class="panel reveal">
+      <p class="eyebrow">03 — Nhẹ, không làm phiền</p>
+      <h2>Mở lên trong chớp mắt, và không gửi dữ liệu đi đâu cả.</h2>
+      <p>
+        Phần mềm mở lên chưa tới 0,1 giây, lúc không làm gì chỉ tốn khoảng 5 MB RAM và không gửi
+        bất cứ thứ gì ra mạng: không tài khoản, không theo dõi, không tải gì lên. Một lý do nó
+        nhẹ được như vậy là Tauri v2 dùng luôn WebView có sẵn trong Windows để hiển thị, thay vì
+        đóng gói kèm cả một trình duyệt riêng.
+      </p>
+      <div class="meter">
+        <div class="meter-row">
+          <span class="meter-label">Markdown Live <b>· Tauri</b></span>
+          <span class="meter-bar"><i style="--v:8%"></i></span>
+          <span class="meter-val">~13 MB</span>
+        </div>
+        <div class="meter-row dim">
+          <span class="meter-label">App Electron thông thường</span>
+          <span class="meter-bar"><i style="--v:100%"></i></span>
+          <span class="meter-val">~150 MB</span>
+        </div>
+        <p class="meter-note">Dung lượng file tải về. App Electron thường phải đóng gói kèm cả một bản Chromium riêng. Bạn cứ tự kiểm chứng số liệu, đừng vội tin lời ai.</p>
+      </div>
+      <ul class="ticks tight">
+        <li>Giấy phép MIT: miễn phí, mã nguồn mở, bạn đọc được từng dòng code</li>
+        <li>Không cần tài khoản, không thu thập dữ liệu, không có gì rời khỏi máy bạn</li>
+        <li>Không cần mạng, nên dùng được cả trên máy bay</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─────────────────── 5 · PLAYGROUND / OUTPUT ──────────────────── -->
+  <section id="s-play" class="sec play" data-align="center">
+    <div class="play-head reveal">
+      <p class="eyebrow">04 — Tải phần mềm</p>
+      <h2>Toàn cảnh phần mềm, ở cả chế độ sáng và tối.</h2>
+    </div>
+    <figure class="shot reveal">
+      <img class="shot-dark" src="./images/dark-mode.png" width="1592" height="902" loading="lazy" decoding="async"
+           alt="Phần mềm Markdown Live trên máy tính: mã Markdown ở bên trái, bản xem trước trực tiếp ở bên phải, thanh công cụ có các nút chia khung, cuộn đồng bộ, đặt lại, sao chép, nhập (Import) và xuất (Export).">
+      <img class="shot-light" src="./images/light-mode.png" width="1591" height="905" loading="lazy" decoding="async"
+           alt="Phần mềm Markdown Live trên máy tính: mã Markdown ở bên trái, bản xem trước trực tiếp ở bên phải, thanh công cụ có các nút chia khung, cuộn đồng bộ, đặt lại, sao chép, nhập (Import) và xuất (Export).">
+    </figure>
+
+    <div class="qa reveal">
+      <div>
+        <h4 class="sub">Chỉ ba bước là bắt đầu viết được</h4>
+        <ol class="steps">
+          <li><b>Tải file về.</b> Vào <a href="https://github.com/UyTran0610/markdown-live-app/releases">trang Releases</a>, chọn file có tên kết thúc bằng <b>portable.exe</b> (khoảng 13 MB).</li>
+          <li><b>Mở lên dùng.</b> Nhấp đúp là chạy, không cần cài đặt: để file ở thư mục nào cũng được. Cần Windows 10 hoặc 11 bản 64-bit.</li>
+          <li><b>Nếu Windows hiện cảnh báo</b> ở lần mở đầu tiên, hãy bấm <b>More info</b> rồi <b>Run anyway</b>. Đây là cảnh báo quen thuộc với phần mềm chưa mua chứng chỉ ký số, không có nghĩa là file chứa mã độc.</li>
+        </ol>
+      </div>
+
+      <div>
+        <h4 class="sub">Câu hỏi thường gặp</h4>
+        <div class="faq">
+          <details>
+            <summary>Tôi có cần biết Markdown không?</summary>
+            <p>Không cần. Thanh công cụ phía trên khung soạn thảo có sẵn các nút cho tiêu đề, in đậm, danh sách, bảng, liên kết, code, trích dẫn, công thức toán và sơ đồ. Bạn chỉ cần bấm nút, phần mềm sẽ tự viết cú pháp giúp. Nếu đã biết Markdown thì cứ gõ thẳng, phần xem trước vẫn theo kịp.</p>
+          </details>
+          <details>
+            <summary>Có thật sự miễn phí không?</summary>
+            <p>Có. Phần mềm miễn phí và mã nguồn mở theo giấy phép MIT: không cần tài khoản, không có bản dùng thử, không quảng cáo, không thu thập dữ liệu. Tài liệu của bạn không bao giờ bị tải lên đâu cả.</p>
+          </details>
+          <details>
+            <summary>Có cần kết nối internet không?</summary>
+            <p>Không. Sau khi tải về, Markdown Live chạy hoàn toàn offline: trên máy bay hay lúc mất mạng vẫn dùng bình thường.</p>
+          </details>
+          <details>
+            <summary>Nên tải file nào?</summary>
+            <p>Trên trang Releases, hãy chọn file .exe có chữ <b>portable</b> trong tên. File này nặng khoảng 13 MB, chạy được trên Windows 10 và 11 bản 64-bit. Nếu bên cạnh có cả bộ cài .msi thì dùng cái nào cũng được, nhưng nên ưu tiên file portable.</p>
+          </details>
+          <details>
+            <summary>Windows báo “Windows protected your PC”</summary>
+            <p>Đây là điều bình thường. Dự án là mã nguồn mở và chưa được ký số, nên Windows hiện cảnh báo “Unknown publisher” (nhà phát hành không xác định). Bạn bấm <b>More info</b> rồi <b>Run anyway</b>.</p>
+          </details>
+          <details>
+            <summary>Nhấp đúp mà phần mềm không mở</summary>
+            <p>Nếu nhấp đúp không có phản ứng gì, hãy nhấp chuột phải vào file → <b>Properties</b> → tích chọn <b>Unblock</b> → <b>Apply</b> → <b>OK</b>.</p>
+          </details>
+          <details>
+            <summary>Tôi có mở được file Markdown mình đã có không?</summary>
+            <p>Được. Bấm <b>Import</b> ở thanh trên cùng rồi chọn file .md, .markdown hoặc .txt. Khi xuất ngược lại ra .md, văn bản vẫn giữ nguyên như ban đầu.</p>
+          </details>
+          <details>
+            <summary>Nội dung tôi viết có được lưu lại không?</summary>
+            <p>Phần mềm tự lưu nội dung và chế độ xem gần nhất ngay trên máy, lần sau mở lại sẽ khôi phục. Nếu muốn giữ thêm một bản riêng, bạn nên xuất ra file.</p>
+          </details>
+          <details>
+            <summary>Có chạy được trên macOS hoặc Linux không?</summary>
+            <p>Chưa. Hiện chỉ có bản cho Windows 10/11 64-bit.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta reveal">
+      <a class="btn primary lg" href="https://github.com/UyTran0610/markdown-live-app/releases">Tải cho Windows</a>
+      <a class="btn ghost lg" href="https://github.com/UyTran0610/markdown-live-app" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><use href="#i-github"/></svg>
+        Xem mã nguồn
+      </a>
+    </div>
+    <p class="foot reveal">
+      <a href="https://github.com/UyTran0610/markdown-live-app/releases">Tải về</a>
+      <a href="https://github.com/UyTran0610/markdown-live-app" target="_blank" rel="noopener">Mã nguồn</a>
+      <a href="./" lang="en" hreflang="en">English</a>
+      <span>Miễn phí và mã nguồn mở (MIT) · không cần tài khoản · không theo dõi</span>
+    </p>
+  </section>
+
+</main>
+
+<noscript>
+  <div class="noscript">
+    Trang này dùng WebGL để vẽ hình nền minh họa. Toàn bộ nội dung bạn cần đọc đều là HTML
+    thuần, nên vẫn xem được bình thường khi không có WebGL.
+  </div>
+</noscript>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

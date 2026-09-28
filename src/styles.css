@@ -1,0 +1,436 @@
+/* ═══════════════════════════════════════════════════════════════
+   Markdown Live — landing
+   Tokens are sampled straight from the app's own dark/light themes.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg:       #0d1117;
+  --surface:  #161b22;
+  --chrome:   #1a212c;
+  --blue:     #388bfd;
+  --blue-2:   #1b2c43;
+  --amber:    #d29922;
+  --text:     #e6edf3;
+  --dim:      #9aa7b4;
+  --line:     rgba(255, 255, 255, .09);
+  --line-2:   rgba(255, 255, 255, .16);
+  --glass:    rgba(13, 17, 23, .72);
+  --shadow:   0 24px 60px -18px rgba(0, 0, 0, .75);
+  --r:        14px;
+
+  --sans: ui-sans-serif, system-ui, "Segoe UI Variable Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "Cascadia Code", "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+  --ease: cubic-bezier(.22, .8, .26, 1);
+}
+
+:root[data-theme="light"] {
+  --bg:       #fafafa;
+  --surface:  #f6f8fa;
+  --chrome:   #f3f3f3;
+  --blue:     #0a66c2;
+  --blue-2:   #ddebff;
+  --amber:    #9a6700;
+  --text:     #1f2328;
+  --dim:      #59636e;
+  --line:     rgba(0, 0, 0, .10);
+  --line-2:   rgba(0, 0, 0, .18);
+  --glass:    rgba(250, 250, 250, .78);
+  --shadow:   0 24px 60px -22px rgba(0, 0, 0, .30);
+}
+
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 clamp(15px, .35vw + 14px, 17px) / 1.62 var(--sans);
+  font-feature-settings: "kern" 1, "liga" 1, "cv05" 1;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  transition: background-color .5s var(--ease), color .5s var(--ease);
+}
+
+::selection { background: var(--blue); color: #fff; }
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.nowrap { white-space: nowrap; }
+
+.skip {
+  position: fixed; top: 8px; left: 8px; z-index: 100;
+  padding: .6rem 1rem; border-radius: 8px;
+  background: var(--blue); color: #fff; font-weight: 600;
+  transform: translateY(-160%);
+  transition: transform .2s var(--ease);
+}
+.skip:focus { transform: none; }
+
+/* ── 3D canvas ──────────────────────────────────────────────── */
+#gl {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  display: block; z-index: 0;
+}
+
+/* scrim keeps hero copy readable over the slab, and gives the
+   page a soft centre-of-gravity without touching the WebGL scene */
+.scrim {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(120% 78% at 50% 44%, var(--bg) 0%, transparent 62%);
+  /* độ mờ do main.js điều khiển theo scroll: chỉ cần ở hero */
+  opacity: .88;
+  will-change: opacity;
+  transition: background .5s var(--ease);
+}
+
+/* ── nav ────────────────────────────────────────────────────── */
+.nav {
+  position: fixed; inset: 0 0 auto; z-index: 40;
+  display: flex; align-items: center; gap: 1.5rem;
+  padding: 1rem clamp(1rem, 4vw, 2.6rem);
+  background: linear-gradient(var(--bg) 22%, transparent);
+  transition: background .4s var(--ease);
+}
+.nav.solid {
+  background: var(--glass);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  display: flex; align-items: center; gap: .55rem; min-width: 0;
+  font-family: var(--mono); font-size: .96rem; letter-spacing: -.01em;
+  color: var(--text); text-decoration: none;
+}
+/* màn hẹp: cắt bớt brand thay vì đẩy nút Download ra khỏi khung */
+.brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brand b { color: var(--blue); font-weight: 700; }
+.nav-links { display: flex; gap: 1.4rem; margin-left: auto; }
+.nav-links a {
+  color: var(--dim); text-decoration: none; font-size: .89rem;
+  transition: color .18s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-actions { display: flex; align-items: center; gap: .5rem; }
+
+/* ── buttons ────────────────────────────────────────────────── */
+.btn {
+  --btn-bg: transparent;
+  display: inline-flex; align-items: center; gap: .5rem;
+  min-height: 44px; padding: 0 1.15rem;
+  border: 1px solid var(--line-2); border-radius: 10px;
+  background: var(--btn-bg); color: var(--text);
+  font: 600 .93rem/1 var(--sans); text-decoration: none;
+  cursor: pointer; white-space: nowrap;
+  transition: transform .22s var(--ease), background .22s, border-color .22s, box-shadow .22s;
+  /* the 3D sheen — pure CSS, no WebGL needed on buttons */
+  background-image: radial-gradient(180px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, .22), transparent 62%);
+  background-repeat: no-repeat;
+}
+.btn.sm  { min-height: 36px; padding: 0 .85rem; font-size: .87rem; }
+.btn.lg  { min-height: 52px; padding: 0 1.6rem; font-size: 1rem; border-radius: 12px; }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn.primary {
+  background-color: var(--blue); border-color: transparent; color: #fff;
+  box-shadow: 0 10px 26px -12px var(--blue);
+}
+.btn.primary:hover { box-shadow: 0 16px 34px -12px var(--blue); }
+.btn.ghost:hover { border-color: var(--blue); color: var(--blue); }
+.btn.icon { position: relative; width: 36px; min-height: 36px; padding: 0; justify-content: center; border-radius: 9px; }
+/* vùng chạm 44px cho nút 36px — touch target ≥ 44px không đánh đổi với kích thước thị giác */
+.btn.icon::after { content: ""; position: absolute; inset: -4px; }
+:root[data-theme="dark"]  .i-sun  { display: none; }
+:root[data-theme="light"] .i-moon { display: none; }
+
+/* ── section shell ──────────────────────────────────────────── */
+main { position: relative; z-index: 2; }
+.sec {
+  position: relative;
+  min-height: 100svh;
+  padding: clamp(5.5rem, 12vh, 8rem) clamp(1.1rem, 5vw, 4rem) clamp(3rem, 8vh, 5rem);
+  display: grid; gap: 2rem;
+  align-content: center;
+}
+.sec[data-align="center"]  { justify-items: center; text-align: center; }
+.sec[data-align="left"]    { justify-items: start; }
+.sec[data-align="right"]   { justify-items: end;   text-align: right; }
+.sec[data-align="corner"]  { align-content: end; justify-items: start; }
+
+/* section cuối cao hơn 1 viewport: cần cửa sổ scroll thật để camera kịp pull-back */
+.sec.play { min-height: 140svh; }
+
+.panel { width: min(34rem, 100%); }
+
+/* ── type ───────────────────────────────────────────────────── */
+.eyebrow {
+  margin: 0 0 1rem;
+  font: 600 .74rem/1 var(--mono);
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--blue);
+}
+h1 {
+  margin: 0 0 1.4rem;
+  font-size: clamp(2.6rem, 7.2vw, 5.6rem);
+  line-height: .99; letter-spacing: -.04em; font-weight: 700;
+}
+h2 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.75rem, 3.4vw, 2.7rem);
+  line-height: 1.08; letter-spacing: -.03em; font-weight: 700;
+}
+h4, h5 { margin: 0 0 .5rem; letter-spacing: -.02em; }
+.sub { margin: 1.9rem 0 .9rem; font-size: 1.05rem; }
+/* cân dòng cho tiêu đề: không để 1 từ rơi xuống dòng cuối (Chrome/Edge/WebView2/Firefox ≥121) */
+h1, h2, .sub { text-wrap: balance; }
+.lede {
+  margin: 0 0 2.1rem; max-width: 34ch;
+  font-size: clamp(1rem, 1.3vw, 1.15rem); color: var(--dim);
+}
+.sec[data-align="right"] .lede,
+.sec[data-align="right"] .panel > p { margin-left: auto; }
+
+.ticks { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; gap: .55rem; }
+.ticks.tight { margin-top: 1.1rem; }
+.ticks li { position: relative; padding-left: 1.5rem; color: var(--dim); font-size: .93rem; }
+.ticks li::before {
+  content: ""; position: absolute; left: 0; top: .62em;
+  width: 6px; height: 6px; border-radius: 2px; background: var(--blue);
+}
+.kbd-hint { margin-top: 1.4rem; font-size: .82rem; color: var(--dim); }
+kbd {
+  font: 600 .78em/1 var(--mono);
+  padding: .22em .45em; border: 1px solid var(--line-2);
+  border-bottom-width: 2px; border-radius: 5px; background: var(--surface);
+}
+
+/* ── hero extras ────────────────────────────────────────────── */
+.cta { display: flex; flex-wrap: wrap; gap: .7rem; margin: 0 0 2.6rem; }
+.sec[data-align="center"] .cta { justify-content: center; }
+.trust { margin: -1.4rem 0 2.4rem; font: .82rem/1.5 var(--mono); color: var(--dim); }
+.stats {
+  display: flex; flex-wrap: wrap; gap: clamp(1.2rem, 4vw, 3rem);
+  margin: 0; justify-content: center;
+}
+.stats div { text-align: center; }
+.stats dt {
+  font: 600 .68rem/1 var(--mono); letter-spacing: .13em;
+  text-transform: uppercase; color: var(--dim); margin-bottom: .45rem;
+}
+.stats dd {
+  margin: 0; font: 600 clamp(1.3rem, 2.3vw, 1.75rem)/1 var(--mono);
+  letter-spacing: -.03em;
+}
+.stats dd span { font-size: .55em; color: var(--dim); margin-left: .12em; }
+.scroll-hint {
+  margin: 3rem 0 0; font: 600 .7rem/1 var(--mono);
+  letter-spacing: .2em; text-transform: uppercase; color: var(--dim);
+  display: flex; align-items: center; gap: .7rem;
+}
+.scroll-hint span {
+  width: 1px; height: 34px;
+  background: linear-gradient(var(--blue), transparent);
+  animation: drop 2.1s var(--ease) infinite;
+}
+@keyframes drop {
+  0%, 100% { transform: scaleY(.35); transform-origin: top; opacity: .4; }
+  50%      { transform: scaleY(1);   transform-origin: top; opacity: 1; }
+}
+
+/* ── the 3D seam handle ─────────────────────────────────────── */
+.seam-handle {
+  position: fixed; z-index: 30;
+  top: 0; left: 0;                     /* JS ghi đè bằng transform mỗi frame */
+  width: 44px; height: 44px;           /* 44px = min touch target */
+  margin: -22px 0 0 -22px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  cursor: ew-resize; touch-action: none;
+  opacity: 0; pointer-events: none;
+  transition: opacity .45s var(--ease);
+  will-change: transform;
+}
+.seam-handle.live { opacity: 1; pointer-events: auto; }
+.seam-handle .grip {
+  width: 20px; height: 34px; border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  background: var(--glass);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .25), 0 6px 18px -6px rgba(0, 0, 0, .6);
+  position: relative;
+  transition: transform .2s var(--ease), border-color .2s;
+}
+.seam-handle .grip::after {
+  content: ""; position: absolute; inset: 50% 5px auto; height: 1px;
+  transform: translateY(-50%);
+  background:
+    linear-gradient(var(--blue), var(--blue)) center/1px 10px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) calc(50% - 5px) center/1px 10px no-repeat,
+    linear-gradient(var(--blue), var(--blue)) calc(50% + 5px) center/1px 10px no-repeat;
+  opacity: .9;
+}
+.seam-handle:hover .grip, .seam-handle:focus-visible .grip,
+.seam-handle.grabbing .grip {
+  transform: scale(1.12); border-color: var(--blue);
+}
+
+/* ── feature cards ──────────────────────────────────────────── */
+.cards { display: grid; gap: .6rem; margin-top: 1.6rem; }
+.card {
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--glass);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  padding: .95rem 1.1rem;
+}
+.card h3 {
+  margin: 0 0 .3rem; font: 600 .78rem/1 var(--mono);
+  letter-spacing: .1em; text-transform: uppercase; color: var(--blue);
+}
+.card .eq { margin: 0; font-family: var(--mono); font-size: .95rem; color: var(--text); }
+.card p { margin: 0; font-size: .9rem; color: var(--dim); }
+.eq-r { color: var(--dim); font-size: .8em; }
+.tag-note, .tag-tip, .tag-warn {
+  display: inline-block; padding: .12em .5em; border-radius: 5px;
+  font-size: .74em; font-weight: 700; letter-spacing: .06em;
+  border-left: 2px solid;
+}
+.tag-note { color: var(--blue);   border-color: var(--blue);   background: var(--blue-2); }
+.tag-tip  { color: #2da44e;       border-color: #2da44e; }
+.tag-warn { color: var(--amber);  border-color: var(--amber); }
+
+/* ── perf meter ─────────────────────────────────────────────── */
+.meter { margin-top: 1.6rem; display: grid; gap: .7rem; }
+.meter-row {
+  display: grid; grid-template-columns: 11rem 1fr auto;
+  align-items: center; gap: .8rem; font-size: .88rem;
+}
+.meter-row.dim { opacity: .55; }
+.meter-label b { color: var(--blue); }
+.meter-bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.meter-bar i {
+  display: block; height: 100%; width: var(--v); border-radius: 4px;
+  background: linear-gradient(90deg, var(--blue), var(--amber));
+}
+.meter-val { font: 600 .84rem/1 var(--mono); color: var(--dim); min-width: 4.4rem; text-align: right; }
+.meter-note { margin: .3rem 0 0; font-size: .8rem; color: var(--dim); }
+
+/* ── steps + FAQ (plain HTML, works with JS off) ─────────────── */
+.qa { width: min(46rem, 100%); display: grid; gap: 1.8rem; text-align: left; }
+.steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: .7rem; }
+.steps li { position: relative; padding-left: 2.1rem; color: var(--dim); font-size: .93rem; }
+.steps li::before {
+  counter-increment: s; content: counter(s);
+  position: absolute; left: 0; top: .05em;
+  width: 1.5rem; height: 1.5rem; border-radius: 6px;
+  display: grid; place-items: center;
+  background: var(--blue-2); color: var(--blue);
+  font: 700 .78rem/1 var(--mono);
+}
+.steps b, .faq b { color: var(--text); }
+.steps a, .faq a { color: var(--blue); }
+
+.faq { display: grid; gap: .4rem; }
+.faq details {
+  border: 1px solid var(--line); border-radius: 10px;
+  background: var(--glass);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.faq summary {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  padding: .7rem .95rem; font-weight: 600; font-size: .93rem;
+  cursor: pointer; list-style: none;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--blue); font: 400 1.15rem/1 var(--mono); }
+.faq details[open] summary::after { content: "\2013"; }
+.faq p { margin: 0; padding: 0 .95rem .85rem; color: var(--dim); font-size: .9rem; }
+
+/* ── app screenshot ────────────────────────────────────────── */
+.play-head { max-width: 40rem; margin-bottom: 1.5rem; }
+/* Ảnh thật, đổi theo theme bằng CSS thuần — cùng pattern .i-moon/.i-sun ở trên.
+   Cả hai trục auto + chỉ chặn bằng max-*: ảnh co về vừa khung mà không thể méo.
+   max-height 54svh giữ nguyên chiều cao section 5 (140svh) như .preview cũ. */
+.shot { margin: 0; width: min(52rem, 100%); }
+.shot img {
+  display: block;
+  width: auto; height: auto;
+  max-width: 100%; max-height: 54svh;
+  margin-inline: auto;
+  border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
+}
+:root[data-theme="dark"]  .shot-light { display: none; }
+:root[data-theme="light"] .shot-dark  { display: none; }
+
+.foot {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: .45rem 1.1rem; justify-content: center;
+  margin: 2.2rem 0 0; font-size: .82rem; color: var(--dim);
+}
+.foot a { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--line-2); }
+.foot a:hover { color: var(--text); border-color: var(--blue); }
+
+.noscript {
+  position: relative; z-index: 50;
+  margin: 6rem auto; max-width: 34rem; padding: 1rem 1.2rem;
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--surface); color: var(--dim); text-align: center;
+}
+
+/* WebGL chết -> bỏ hết lớp 3D, nội dung DOM vẫn nguyên vẹn */
+.no-gl #gl, .no-gl .scrim, .no-gl .seam-handle, .no-gl .scroll-hint { display: none; }
+.no-gl .sec { min-height: auto; padding-top: 7rem; padding-bottom: 3rem; }
+
+/* ── reveal (chỉ khi có JS, nếu không nội dung vẫn phải đọc được) ── */
+.js .reveal {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+}
+.js .reveal.on { opacity: 1; transform: none; }
+
+/* ── responsive ─────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .nav-links { display: none; }
+  .sec { align-content: center; justify-items: start; text-align: left; }
+  .sec[data-align="center"] { justify-items: center; text-align: center; }
+  .sec[data-align="right"]  { justify-items: start; text-align: left; }
+  .sec[data-align="right"] .lede,
+  .sec[data-align="right"] .panel > p { margin-left: 0; }
+  .meter-row { grid-template-columns: 1fr; gap: .3rem; }
+  .meter-val { text-align: left; }
+  .seam-handle { display: none; }   /* mobile: seam vẫn chạy, chỉ bỏ handle */
+}
+
+@media (max-width: 520px) {
+  .nav { gap: .6rem; }
+  .nav-actions { gap: .4rem; }
+  .stats { gap: 1.1rem 1.6rem; }
+  .cta .btn { flex: 1 1 auto; justify-content: center; }
+}
+
+/* ── reduced motion ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  .js .reveal { opacity: 1; transform: none; }
+  .seam-handle { display: none; }
+}
+
+@media print {
+  #gl, .scrim, .nav, .seam-handle, .scroll-hint { display: none !important; }
+  body { background: #fff; color: #000; }
+}

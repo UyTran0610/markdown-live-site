@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Markdown Live</title>
+<meta name="description" content="A free 13 MB Markdown editor for Windows 10/11. See the formatted page as you type — LaTeX, Mermaid, tables, code highlighting — then export to Word or PDF. Works offline.">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Markdown Live">
+<meta property="og:description" content="Type on the left, see the page on the right. Free, offline, 13 MB, exports to Word and PDF.">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="./images/dark-mode.png">
+<link rel="icon" href="./icon-64.png">
+<script>
+  document.documentElement.classList.add('js');
+  if (matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.dataset.theme = 'light';
+</script>
+<link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute"><symbol id="i-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.043-1.61-4.043-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol></svg>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="scrim" aria-hidden="true"></div>
+
+<a class="skip" href="#s-split">Skip to content</a>
+
+<header class="nav">
+  <a class="brand" href="#s-hero">
+    <img src="./icon-64.png" width="22" height="22" alt="">
+    <span>Markdown<b>Live</b></span>
+  </a>
+  <nav class="nav-links" aria-label="Sections">
+    <a href="#s-split">What it's for</a>
+    <a href="#s-math">Features</a>
+    <a href="#s-play">Get the app</a>
+  </nav>
+  <div class="nav-actions">
+    <button id="theme" class="btn ghost icon" type="button" aria-label="Switch colour theme" title="Switch theme">
+      <svg class="i-moon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.3 5.3l1.9 1.9M14.8 14.8l1.9 1.9M18.7 5.3l-1.9 1.9M9.2 14.8l-1.9 1.9"/></g></svg>
+    </button>
+    <a class="btn ghost sm" href="./index.vi.html" lang="vi" title="Tiếng Việt" aria-label="Xem bản tiếng Việt">VI</a>
+    <a class="btn primary sm" href="https://github.com/UyTran0610/markdown-live-app/releases">Download</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ─────────────────────────── 1 · HERO ─────────────────────────── -->
+  <section id="s-hero" class="sec hero" data-align="center">
+    <p class="eyebrow reveal">Free &amp; open source · Works offline</p>
+    <h1 class="reveal">Type on the left.<br>See the page on the right.</h1>
+    <p class="lede reveal">
+      Markdown Live is a small desktop editor for Windows that turns plain text into a
+      formatted page as you type with equations, diagrams, tables and highlighted code.
+      Export it to Word or PDF. It never needs the internet.
+    </p>
+    <div class="cta reveal">
+      <a class="btn primary" href="https://github.com/UyTran0610/markdown-live-app/releases">
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 20h16" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download for Windows
+      </a>
+      <a class="btn ghost" href="https://github.com/UyTran0610/markdown-live-app" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><use href="#i-github"/></svg>
+        View source
+      </a>
+    </div>
+    <p class="trust reveal">Windows 10/11 64-bit · nothing to install · MIT licence</p>
+    <dl class="stats reveal">
+      <div><dt>Size</dt><dd>~13<span>MB</span></dd></div>
+      <div><dt>Idle memory</dt><dd>~5<span>MB</span></dd></div>
+      <div><dt>Launch</dt><dd>&lt;0.1<span>s</span></dd></div>
+      <div><dt>Network</dt><dd>0<span>bytes</span></dd></div>
+    </dl>
+    <p class="scroll-hint reveal" aria-hidden="true">scroll<span></span></p>
+  </section>
+
+  <!-- ─────────────────────── 2 · SPLIT / THE SEAM ─────────────────── -->
+  <section id="s-split" class="sec split" data-align="corner">
+    <div class="panel reveal">
+      <p class="eyebrow">01 — Two-pane editing</p>
+      <h2>Your text, and the page it becomes.</h2>
+      <p>
+        You type on the left and the finished page appears on the right, updated as you type.
+        Drag the divider to give either side more room push it all the way to an edge and
+        the app goes full width on that side.
+      </p>
+      <ul class="ticks">
+        <li>Three views: editor only, side by side, or preview only</li>
+        <li>Scrolling can stay in step between the two panes</li>
+        <li>Both panes remember where you were</li>
+      </ul>
+      <h4 class="sub">What it is for</h4>
+      <div class="cards">
+        <article class="card">
+          <h3>Reports &amp; theses</h3>
+          <p>Equations, tables and diagrams in one file. Export to Word and hand it in.</p>
+        </article>
+        <article class="card">
+          <h3>Docs &amp; READMEs</h3>
+          <p>Specs and documentation with highlighted code, previewed while you type.</p>
+        </article>
+        <article class="card">
+          <h3>Notes &amp; blog posts</h3>
+          <p>Draft offline, then export to HTML or Markdown and publish it anywhere.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div id="seam-handle" class="seam-handle" role="slider" tabindex="0"
+       aria-label="Split position between Markdown source and rendered preview"
+       aria-valuemin="8" aria-valuemax="92" aria-valuenow="50" aria-valuetext="50 percent">
+    <span class="grip" aria-hidden="true"></span>
+  </div>
+
+  <!-- ──────────────────── 3 · MATH & DIAGRAMS ────────────────────── -->
+  <section id="s-math" class="sec math" data-align="left">
+    <div class="panel reveal">
+      <p class="eyebrow">02 — Features</p>
+      <h2>Everything lands in one document.</h2>
+      <p>
+        Equations, diagrams and callout boxes are written straight into your text, so they show
+        up in the preview and travel with you into every export nothing to rebuild, nothing
+        to paste as a picture.
+      </p>
+      <div class="cards">
+        <article class="card">
+          <h3>LaTeX</h3>
+          <p class="eq">$E = mc^2$ <span class="eq-r">and display blocks</span></p>
+        </article>
+        <article class="card">
+          <h3>Mermaid</h3>
+          <p class="eq">flowchart · sequence · ERD</p>
+        </article>
+        <article class="card">
+          <h3>GFM alerts</h3>
+          <p class="eq"><span class="tag-note">NOTE</span> <span class="tag-tip">TIP</span> <span class="tag-warn">WARNING</span></p>
+        </article>
+      </div>
+      <h4 class="sub">Export</h4>
+      <div class="cards">
+        <article class="card">
+          <h3>Word</h3>
+          <p>A .doc file that Microsoft Word opens. Mermaid diagrams become images automatically.</p>
+        </article>
+        <article class="card">
+          <h3>PDF</h3>
+          <p>Real vector text: selectable, searchable, copyable not a picture of your page.</p>
+        </article>
+        <article class="card">
+          <h3>HTML</h3>
+          <p>One self-contained file for any browser, or for a website to publish.</p>
+        </article>
+        <article class="card">
+          <h3>Markdown</h3>
+          <p>Your text back out unchanged, for Git, a blog or a static site.</p>
+        </article>
+      </div>
+      <ul class="ticks">
+        <li>Open your own .md, .markdown or .txt files with <b>Import</b></li>
+        <li>A formatting toolbar, so you never have to remember the syntax</li>
+        <li>Your text and last view mode are saved on this machine, restored next launch</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ───────────────────── 4 · RUST / PERFORMANCE ────────────────── -->
+  <section id="s-perf" class="sec perf" data-align="right">
+    <div class="panel reveal">
+      <p class="eyebrow">03 — Why it stays out of your way</p>
+      <h2>It opens before you notice, and it never phones home.</h2>
+      <p>
+        Starting up takes under a tenth of a second, idle it sits at about 5 MB of memory, and
+        it sends nothing over the network no account, no analytics, no upload. One reason it
+        can afford that: Tauri v2 draws through the WebView that already ships with Windows
+        instead of bundling a second browser.
+      </p>
+      <div class="meter">
+        <div class="meter-row">
+          <span class="meter-label">Markdown Live <b>· Tauri</b></span>
+          <span class="meter-bar"><i style="--v:8%"></i></span>
+          <span class="meter-val">~13 MB</span>
+        </div>
+        <div class="meter-row dim">
+          <span class="meter-label">Typical Electron app</span>
+          <span class="meter-bar"><i style="--v:100%"></i></span>
+          <span class="meter-val">~150 MB</span>
+        </div>
+        <p class="meter-note">Download size. A typical Electron app ships a whole extra copy of Chromium, check the numbers for yourself before taking anyone else's word for it.</p>
+      </div>
+      <ul class="ticks tight">
+        <li>MIT licence: free, open source, and you can read every line of it</li>
+        <li>No account, no telemetry, nothing leaves your machine</li>
+        <li>No network needed, so it works on a plane</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─────────────────── 5 · PLAYGROUND / OUTPUT ──────────────────── -->
+  <section id="s-play" class="sec play" data-align="center">
+    <div class="play-head reveal">
+      <p class="eyebrow">04 — Get the app</p>
+      <h2>The whole app, in both themes.</h2>
+    </div>
+    <figure class="shot reveal">
+      <img class="shot-dark" src="./images/dark-mode.png" width="1592" height="902" loading="lazy" decoding="async"
+           alt="The Markdown Live desktop app: Markdown source on the left, live preview on the right, with a toolbar for split, scroll sync, reset, copy, import and export.">
+      <img class="shot-light" src="./images/light-mode.png" width="1591" height="905" loading="lazy" decoding="async"
+           alt="The Markdown Live desktop app: Markdown source on the left, live preview on the right, with a toolbar for split, scroll sync, reset, copy, import and export.">
+    </figure>
+
+    <div class="qa reveal">
+      <div>
+        <h4 class="sub">Three steps and you are writing</h4>
+        <ol class="steps">
+          <li><b>Get the file.</b> On the <a href="https://github.com/UyTran0610/markdown-live-app/releases">Releases page</a>, take the one ending in <b>portable.exe</b> (about 13 MB).</li>
+          <li><b>Run it.</b> Double-click and go. There is nothing to install: leave the file in any folder and it works. Needs Windows 10 or 11, 64-bit.</li>
+          <li><b>If Windows warns you</b> on the first launch, click <b>More info</b> then <b>Run anyway</b>. That is the standard warning for software without a paid signing certificate, it does not mean the file contains malware.</li>
+        </ol>
+      </div>
+
+      <div>
+        <h4 class="sub">Frequently asked questions</h4>
+        <div class="faq">
+          <details>
+            <summary>Do I have to know Markdown?</summary>
+            <p>No. The toolbar above the editor has buttons for headings, bold, lists, tables, links, code, quotes, maths and diagrams, press a button and it writes the syntax for you. If you do know Markdown, just type it: the preview keeps up with you.</p>
+          </details>
+          <details>
+            <summary>Is it really free?</summary>
+            <p>Yes — free and open source under the MIT licence. No account, no trial, no ads, no telemetry. Your documents are never uploaded anywhere.</p>
+          </details>
+          <details>
+            <summary>Do I need an internet connection?</summary>
+            <p>No. After the first download Markdown Live runs completely offline on a plane, or with the cable unplugged.</p>
+          </details>
+          <details>
+            <summary>Which file should I download?</summary>
+            <p>On the Releases page, pick the .exe whose name contains <b>portable</b>. It is about 13 MB and runs on Windows 10 and 11, 64-bit. If a .msi installer shows up next to it, either one works, but the portable file is the one to grab.</p>
+          </details>
+          <details>
+            <summary>Windows says “Windows protected your PC”</summary>
+            <p>Expected. The project is open source and not digitally signed, so Windows shows an “Unknown publisher” warning. Click <b>More info</b> and then <b>Run anyway</b>.</p>
+          </details>
+          <details>
+            <summary>Double-clicking the app does nothing</summary>
+            <p>If double-clicking does nothing, right-click the file → <b>Properties</b> → tick <b>Unblock</b> → <b>Apply</b> → <b>OK</b>.</p>
+          </details>
+          <details>
+            <summary>Can I open the Markdown files I already have?</summary>
+            <p>Yes. Press <b>Import</b> in the top bar and choose a .md, .markdown or .txt file. Exporting back to .md gives you your text exactly as it was.</p>
+          </details>
+          <details>
+            <summary>Is my writing saved?</summary>
+            <p>The editor saves your text and your last view mode on this machine and restores them the next time you launch. Export to a file as well if you want a copy of your own.</p>
+          </details>
+          <details>
+            <summary>Does it run on macOS or Linux?</summary>
+            <p>Not yet — Windows 10/11 64-bit is the only build for now.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta reveal">
+      <a class="btn primary lg" href="https://github.com/UyTran0610/markdown-live-app/releases">Download for Windows</a>
+      <a class="btn ghost lg" href="https://github.com/UyTran0610/markdown-live-app" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><use href="#i-github"/></svg>
+        View source
+      </a>
+    </div>
+    <p class="foot reveal">
+      <a href="https://github.com/UyTran0610/markdown-live-app/releases">Download</a>
+      <a href="https://github.com/UyTran0610/markdown-live-app" target="_blank" rel="noopener">Source code</a>
+      <a href="./index.vi.html" lang="vi" hreflang="vi">Tiếng Việt</a>
+      <span>Free and open source (MIT) · no accounts · no tracking</span>
+    </p>
+  </section>
+
+</main>
+
+<noscript>
+  <div class="noscript">
+    This page uses WebGL for the background illustration. Everything you need to read is
+    plain HTML and works without it.
+  </div>
+</noscript>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
