@@ -13,6 +13,7 @@ export function createUI({ onTheme, onSeam, onPointer }) {
 
   /* ── theme ─────────────────────────────────────────────── */
   const btnTheme = document.getElementById('theme');
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
   let light = root.dataset.theme === 'light';
 
   btnTheme.addEventListener('click', () => { light = !light; applyTheme(); });
@@ -68,6 +69,9 @@ export function createUI({ onTheme, onSeam, onPointer }) {
 
   function applyTheme() {
     root.dataset.theme = light ? 'light' : 'dark';
+    try { localStorage.setItem('ml-theme', light ? 'light' : 'dark'); } catch { /* storage bị chặn */ }
+    // thanh trình duyệt trên mobile: đọc token --bg để không lặp mã màu ở JS
+    metaTheme.content = getComputedStyle(root).getPropertyValue('--bg').trim();
     onTheme?.(light);
   }
 

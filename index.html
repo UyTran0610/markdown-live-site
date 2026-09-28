@@ -6,17 +6,23 @@
 <title>Markdown Live</title>
 <meta name="description" content="A free 13 MB Markdown editor for Windows 10/11. See the formatted page as you type — LaTeX, Mermaid, tables, code highlighting — then export to Word or PDF. Works offline.">
 <meta name="color-scheme" content="dark light">
-<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1117">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Markdown Live">
 <meta property="og:description" content="Type on the left, see the page on the right. Free, offline, 13 MB, exports to Word and PDF.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="./images/dark-mode.png">
 <link rel="icon" href="./icon-64.png">
+<link rel="preload" as="image" href="./images/dark-mode.png">
+<link rel="preload" as="image" href="./images/light-mode.png">
 <script>
-  document.documentElement.classList.add('js');
-  if (matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.dataset.theme = 'light';
+  const r = document.documentElement;
+  const m = document.querySelector('meta[name="theme-color"]');
+  let t = null;
+  try { t = localStorage.getItem('ml-theme'); } catch { /* storage bị chặn -> theo system */ }
+  r.classList.add('js');
+  r.dataset.theme = t || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  if (r.dataset.theme === 'light') m.content = '#fafafa';
 </script>
 <link rel="stylesheet" href="./src/styles.css">
 </head>

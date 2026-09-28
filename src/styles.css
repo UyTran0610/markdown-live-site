@@ -4,6 +4,7 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
+  color-scheme: dark;
   --bg:       #0d1117;
   --surface:  #161b22;
   --chrome:   #1a212c;
@@ -25,6 +26,7 @@
 }
 
 :root[data-theme="light"] {
+  color-scheme: light;
   --bg:       #fafafa;
   --surface:  #f6f8fa;
   --chrome:   #f3f3f3;

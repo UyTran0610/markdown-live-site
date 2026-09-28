@@ -6,17 +6,23 @@
 <title>Markdown Live</title>
 <meta name="description" content="Trình soạn thảo Markdown miễn phí, chỉ 13 MB, cho Windows 10/11. Gõ bên trái, thấy ngay trang hoàn chỉnh bên phải: công thức LaTeX, sơ đồ Mermaid, bảng biểu, code tô màu cú pháp. Xuất sang Word hoặc PDF. Dùng được cả khi không có mạng.">
 <meta name="color-scheme" content="dark light">
-<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1117">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Markdown Live">
 <meta property="og:description" content="Gõ bên trái, thấy ngay bên phải. Miễn phí, dùng offline, chỉ 13 MB, xuất được sang Word và PDF.">
 <meta property="og:locale" content="vi_VN">
 <meta property="og:image" content="./images/dark-mode.png">
 <link rel="icon" href="./icon-64.png">
+<link rel="preload" as="image" href="./images/dark-mode.png">
+<link rel="preload" as="image" href="./images/light-mode.png">
 <script>
-  document.documentElement.classList.add('js');
-  if (matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.dataset.theme = 'light';
+  const r = document.documentElement;
+  const m = document.querySelector('meta[name="theme-color"]');
+  let t = null;
+  try { t = localStorage.getItem('ml-theme'); } catch { /* storage bị chặn -> theo system */ }
+  r.classList.add('js');
+  r.dataset.theme = t || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  if (r.dataset.theme === 'light') m.content = '#fafafa';
 </script>
 <link rel="stylesheet" href="./src/styles.css">
 </head>
