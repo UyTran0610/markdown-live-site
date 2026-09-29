@@ -198,6 +198,8 @@ h4, h5 { margin: 0 0 .5rem; letter-spacing: -.02em; }
 .sub { margin: 1.9rem 0 .9rem; font-size: 1.05rem; }
 /* cân dòng cho tiêu đề: không để 1 từ rơi xuống dòng cuối (Chrome/Edge/WebView2/Firefox ≥121) */
 h1, h2, .sub { text-wrap: balance; }
+/* ngắt dòng phụ trong h1: desktop 2 dòng, mobile tách "on the right." ra dòng 3 */
+.br-sm { display: none; }
 .lede {
   margin: 0 0 2.1rem; max-width: 34ch;
   font-size: clamp(1rem, 1.3vw, 1.15rem); color: var(--dim);
@@ -416,6 +418,7 @@ kbd {
 }
 
 @media (max-width: 520px) {
+  .br-sm { display: inline; }   /* h1: 3 dòng cân, không rơi chữ cuối */
   .nav { gap: .6rem; }
   .nav-actions { gap: .4rem; }
   .stats { gap: 1.1rem 1.6rem; }
