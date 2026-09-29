@@ -21,8 +21,8 @@ globalThis.innerWidth = 1600;
 globalThis.innerHeight = VH;
 globalThis.scrollY = 0;
 globalThis.addEventListener = () => {};
-/* 4 section đầu 1 viewport, section cuối 1.4 viewport -> giống hệt styles.css */
-const HEIGHTS = [VH, VH, VH, VH, 1.4 * VH];
+/* 4 section đầu 0.9 viewport, section cuối 1.26 viewport -> giống hệt styles.css */
+const HEIGHTS = [0.9 * VH, 0.9 * VH, 0.9 * VH, 0.9 * VH, 1.26 * VH];
 const DOC_H = HEIGHTS.reduce((a, b) => a + b, 0);
 globalThis.document = { documentElement: { scrollHeight: DOC_H } };
 
@@ -99,10 +99,10 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
   const at = (y) => { globalThis.scrollY = y; return rig.update(1 / 60); };
 
   assert.equal(at(0), 0, 'đầu trang phải là u = 0 (keyframe hero)');
-  assert.equal(at(VH), 1 / N, 'khi section 1 chạm đỉnh viewport -> u = 0.2 (keyframe split)');
-  assert.equal(at(2 * VH), 2 / N, 'section 2 -> u = 0.4 (keyframe math)');
-  assert.equal(at(3 * VH), 3 / N, 'section 3 -> u = 0.6 (keyframe perf)');
-  assert.equal(at(4 * VH), 4 / N, 'section 4 -> u = 0.8 (keyframe outro)');
+  assert.equal(at(0.9 * VH), 1 / N, 'khi section 1 chạm đỉnh viewport -> u = 0.2 (keyframe split)');
+  assert.equal(at(1.8 * VH), 2 / N, 'section 2 -> u = 0.4 (keyframe math)');
+  assert.equal(at(2.7 * VH), 3 / N, 'section 3 -> u = 0.6 (keyframe perf)');
+  assert.equal(at(3.6 * VH), 4 / N, 'section 4 -> u = 0.8 (keyframe outro)');
   assert.equal(at(maxScroll), 1, 'cuối trang phải là u = 1 (keyframe cuối của curve)');
 
   // monotonic: u không được lùi khi cuộn xuống
