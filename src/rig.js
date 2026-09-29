@@ -11,9 +11,9 @@ const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const KEYS = [
   // px    py    pz   fov  lookX lookY lookZ
   [  0.0, 0.10, 7.2, 38,   0.0,  0.0,  0.0 ],  // hero      — copy overlay giữa
-  [  0.0, 0.00, 4.6, 32,   0.0, -0.2,  0.0 ],  // split     — slab full-bleed, dồn lên trên
+  [  0.0, 0.00, 4.6, 32,   0.0, -0.2,  0.0 ],  // split     — nền trống, copy dồn lên trên
   [  0.6, 0.50, 3.8, 42,   1.5,  0.25, 1.0 ],  // math      — nhìn lệch trái => vật thể sang phải
-  [ -0.6, 0.10, 3.8, 40,  -1.5,  0.00, 1.4 ],  // perf      — nhìn lệch phải => engine sang trái
+  [ -0.6, 0.10, 3.8, 40,  -1.5,  0.00, 1.4 ],  // perf      — nhìn lệch phải, copy dồn sang trái
   [  0.0, 0.60, 8.8, 42,   0.0,  0.10, 0.0 ],  // outro     — pull back cho CTA
 ];
 

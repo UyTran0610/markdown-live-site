@@ -85,7 +85,7 @@ body {
   display: block; z-index: 0;
 }
 
-/* scrim keeps hero copy readable over the slab, and gives the
+/* scrim keeps hero copy readable over the 3D layer, and gives the
    page a soft centre-of-gravity without touching the WebGL scene */
 .scrim {
   position: fixed; inset: 0; z-index: 1;
@@ -239,57 +239,6 @@ kbd {
   letter-spacing: -.03em;
 }
 .stats dd span { font-size: .55em; color: var(--dim); margin-left: .12em; }
-.scroll-hint {
-  margin: 3rem 0 0; font: 600 .7rem/1 var(--mono);
-  letter-spacing: .2em; text-transform: uppercase; color: var(--dim);
-  display: flex; align-items: center; gap: .7rem;
-}
-.scroll-hint span {
-  width: 1px; height: 34px;
-  background: linear-gradient(var(--blue), transparent);
-  animation: drop 2.1s var(--ease) infinite;
-}
-@keyframes drop {
-  0%, 100% { transform: scaleY(.35); transform-origin: top; opacity: .4; }
-  50%      { transform: scaleY(1);   transform-origin: top; opacity: 1; }
-}
-
-/* ── the 3D seam handle ─────────────────────────────────────── */
-.seam-handle {
-  position: fixed; z-index: 30;
-  top: 0; left: 0;                     /* JS ghi đè bằng transform mỗi frame */
-  width: 44px; height: 44px;           /* 44px = min touch target */
-  margin: -22px 0 0 -22px;
-  display: grid; place-items: center;
-  border-radius: 50%;
-  cursor: ew-resize; touch-action: none;
-  opacity: 0; pointer-events: none;
-  transition: opacity .45s var(--ease);
-  will-change: transform;
-}
-.seam-handle.live { opacity: 1; pointer-events: auto; }
-.seam-handle .grip {
-  width: 20px; height: 34px; border-radius: 7px;
-  border: 1px solid rgba(255, 255, 255, .55);
-  background: var(--glass);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .25), 0 6px 18px -6px rgba(0, 0, 0, .6);
-  position: relative;
-  transition: transform .2s var(--ease), border-color .2s;
-}
-.seam-handle .grip::after {
-  content: ""; position: absolute; inset: 50% 5px auto; height: 1px;
-  transform: translateY(-50%);
-  background:
-    linear-gradient(var(--blue), var(--blue)) center/1px 10px no-repeat,
-    linear-gradient(var(--blue), var(--blue)) calc(50% - 5px) center/1px 10px no-repeat,
-    linear-gradient(var(--blue), var(--blue)) calc(50% + 5px) center/1px 10px no-repeat;
-  opacity: .9;
-}
-.seam-handle:hover .grip, .seam-handle:focus-visible .grip,
-.seam-handle.grabbing .grip {
-  transform: scale(1.12); border-color: var(--blue);
-}
 
 /* ── feature cards ──────────────────────────────────────────── */
 .cards { display: grid; gap: .6rem; margin-top: 1.6rem; }
@@ -368,6 +317,9 @@ kbd {
    Cả hai trục auto + chỉ chặn bằng max-*: ảnh co về vừa khung mà không thể méo.
    max-height 54svh giữ nguyên chiều cao section 5 (126svh) như .preview cũ. */
 .shot { margin: 0; width: min(52rem, 100%); }
+/* section 1 xếp chồng panel dài + ảnh trong 90svh -> ảnh phải nhỏ hơn section 5 */
+.sec.split .shot { width: min(38rem, 100%); }
+.sec.split .shot img { max-height: 34svh; }
 .shot img {
   display: block;
   width: auto; height: auto;
@@ -394,7 +346,7 @@ kbd {
 }
 
 /* WebGL chết -> bỏ hết lớp 3D, nội dung DOM vẫn nguyên vẹn */
-.no-gl #gl, .no-gl .scrim, .no-gl .seam-handle, .no-gl .scroll-hint { display: none; }
+.no-gl #gl, .no-gl .scrim { display: none; }
 .no-gl .sec { min-height: auto; padding-top: 7rem; padding-bottom: 3rem; }
 
 /* ── reveal (chỉ khi có JS, nếu không nội dung vẫn phải đọc được) ── */
@@ -414,7 +366,6 @@ kbd {
   .sec[data-align="right"] .panel > p { margin-left: 0; }
   .meter-row { grid-template-columns: 1fr; gap: .3rem; }
   .meter-val { text-align: left; }
-  .seam-handle { display: none; }   /* mobile: seam vẫn chạy, chỉ bỏ handle */
 }
 
 @media (max-width: 520px) {
@@ -433,10 +384,9 @@ kbd {
     transition-duration: .01ms !important;
   }
   .js .reveal { opacity: 1; transform: none; }
-  .seam-handle { display: none; }
 }
 
 @media print {
-  #gl, .scrim, .nav, .seam-handle, .scroll-hint { display: none !important; }
+  #gl, .scrim, .nav { display: none !important; }
   body { background: #fff; color: #000; }
 }

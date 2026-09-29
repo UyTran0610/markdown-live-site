@@ -19,7 +19,11 @@ const EDGES = [
   ['md', 'parser'], ['parser', 'render'], ['parser', 'mermaid'],
   ['mermaid', 'canvas'], ['render', 'canvas'], ['katex', 'parser'],
 ];
-const ACCENT = '#388bfd';
+/* Bảng màu riêng cho mỗi theme: nền sáng cần mực tối, nền tối cần mực sáng. */
+const PALETTE = {
+  dark:  { accent: '#388bfd', fill: 'rgba(56,139,253,.10)', ink: '#dfe7ef' },
+  light: { accent: '#0a66c2', fill: 'rgba(10,102,194,.07)', ink: '#1f2328' },
+};
 
 function box(g, n) {
   const r = 10;
@@ -32,15 +36,16 @@ function box(g, n) {
   g.closePath();
 }
 
-function raster() {
-  const cv = document.createElement('canvas');
+function raster(cv, light) {
+  const P = PALETTE[light ? 'light' : 'dark'];
+  cv = cv || document.createElement('canvas');
   cv.width = CW; cv.height = CH;
   const g = cv.getContext('2d');
   const at = (id) => NODES.find((n) => n.id === id);
 
   g.lineWidth = 2;
-  g.strokeStyle = ACCENT;
-  g.fillStyle = ACCENT;
+  g.strokeStyle = P.accent;
+  g.fillStyle = P.accent;
 
   for (const [a, b] of EDGES) {
     const A = at(a), B = at(b);
@@ -63,12 +68,12 @@ function raster() {
   g.globalAlpha = 1;
   for (const n of NODES) {
     box(g, n);
-    g.fillStyle = 'rgba(56,139,253,.10)';
+    g.fillStyle = P.fill;
     g.fill();
     g.lineWidth = 2;
-    g.strokeStyle = ACCENT;
+    g.strokeStyle = P.accent;
     g.stroke();
-    g.fillStyle = '#dfe7ef';
+    g.fillStyle = P.ink;
     g.font = `600 24px ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif`;
     g.textAlign = 'center';
     g.textBaseline = 'middle';
@@ -78,15 +83,17 @@ function raster() {
 }
 
 export function createDiagram({ width = 3.05, height = 1.9 } = {}) {
-  const tex = new THREE.CanvasTexture(raster());
+  const cv = raster(null, false);
+  const tex = new THREE.CanvasTexture(cv);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.minFilter = THREE.LinearMipmapLinearFilter;
   tex.anisotropy = 4;
+  let isLight = false;
 
   const mat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
-    blending: THREE.AdditiveBlending,
+    blending: THREE.NormalBlending,
     side: THREE.DoubleSide,
     uniforms: {
       uMap:     { value: tex },
@@ -134,7 +141,13 @@ export function createDiagram({ width = 3.05, height = 1.9 } = {}) {
     object: mesh, material: mat,
     update(t) { mat.uniforms.uTime.value = t; },
     setOpacity(v) { mat.uniforms.uOpacity.value = v; mesh.visible = v > 0.004; },
-    setTheme(c) { mat.uniforms.uAccent.value.copy(c); },
+    setTheme(c, light) {
+      mat.uniforms.uAccent.value.copy(c);
+      if (light === isLight) return;
+      isLight = light;
+      raster(cv, light);
+      tex.needsUpdate = true;
+    },
     dispose() { mesh.geometry.dispose(); mat.dispose(); tex.dispose(); },
   };
 }

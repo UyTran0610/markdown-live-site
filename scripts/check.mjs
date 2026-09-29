@@ -1,13 +1,10 @@
 /**
  * Self-check. Chạy bằng: npm test
  *
- * Kiểm tra đúng 6 thứ dễ vỡ nhất và vỡ âm thầm:
- *  1. ExtrudeGeometry với lỗ hình học (frame kính) — triangulation có hỏng không
- *  2. Uniform khai báo trong GLSL có khớp với uniforms object không (typo = silent)
- *  3. smoothstep(hi, lo, x) — undefined behaviour theo GLSL spec
- *  4. Ánh xạ section -> u của scroll rig (off-by-one ở section cuối)
- *  5. Nội dung demo trong canvas không tràn khung
- *  6. Hai trang HTML (EN/VI) đồng bộ: cùng section, cùng id, cùng con số,
+ * Kiểm tra đúng 3 thứ dễ vỡ nhất và vỡ âm thầm:
+ *  1. smoothstep(hi, lo, x) — undefined behaviour theo GLSL spec
+ *  2. Ánh xạ section -> u của scroll rig (off-by-one ở section cuối)
+ *  3. Hai trang HTML (EN/VI) đồng bộ: cùng section, cùng id, cùng con số,
  *     và số keyframe của camera khớp số section
  */
 import assert from 'node:assert/strict';
@@ -26,7 +23,6 @@ const HEIGHTS = [0.9 * VH, 0.9 * VH, 0.9 * VH, 0.9 * VH, 1.26 * VH];
 const DOC_H = HEIGHTS.reduce((a, b) => a + b, 0);
 globalThis.document = { documentElement: { scrollHeight: DOC_H } };
 
-const { glassFrame, seamMaterial, LAYOUT } = await import('../src/objects/slab.js');
 const { createRig } = await import('../src/rig.js');
 const THREE = await import('three');
 
@@ -37,40 +33,7 @@ const sources = shaderFiles.map((f) => [f, fs.readFileSync(path.join(SRC, 'objec
 let checks = 0;
 const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
 
-/* ── 1. frame kính ───────────────────────────────────────── */
-{
-  const mesh = glassFrame();
-  mesh.geometry.computeBoundingBox();
-  const bb = mesh.geometry.boundingBox;
-  const pos = mesh.geometry.attributes.position.array;
-  assert.ok(pos.length > 0 && pos.length % 3 === 0, 'position array phải chia hết cho 3');
-  assert.ok(pos.every(Number.isFinite), 'mọi vertex phải hữu hạn (triangulation hỏng)');
-  // rộng ~3.92, cao ~2.53, dày ~0.05 (+bevel) -> xấp xỉ
-  assert.ok(bb.max.x - bb.min.x > 3.8 && bb.max.x - bb.min.x < 4.0, `bề rộng frame sai: ${(bb.max.x - bb.min.x).toFixed(3)}`);
-  assert.ok(bb.max.y - bb.min.y > 2.4 && bb.max.y - bb.min.y < 2.6, `chiều cao frame sai: ${(bb.max.y - bb.min.y).toFixed(3)}`);
-  assert.ok(bb.max.z - bb.min.z < 0.2, 'frame phải mỏng');
-  mesh.geometry.dispose();
-  ok('glassFrame() dựng được hình học lỗ, kích thước đúng');
-}
-
-/* ── 2. uniform GLSL <-> uniforms object ─────────────────── */
-{
-  const mat = seamMaterial(null, null);
-  const frag = mat.fragmentShader;
-  const declared = [...frag.matchAll(/uniform\s+\w+\s+([^;]+);/g)]
-    .flatMap((m) => m[1].split(',').map((s) => s.trim().split(/\s|\[/).pop()));
-  const provided = Object.keys(mat.uniforms);
-  const missing = declared.filter((u) => !provided.includes(u));
-  const unused = provided.filter((u) => !declared.includes(u));
-  assert.deepEqual(missing, [], `GLSL dùng uniform không có trong uniforms: ${missing}`);
-  assert.deepEqual(unused, [], `uniforms thừa không ai dùng: ${unused}`);
-  // sampler phải có default value, nếu không WebGL sẽ đọc texture 0
-  assert.ok(mat.uniforms.uSrc.value === null, 'uSrc/uOut chỉ được gán lúc runtime');
-  mat.dispose();
-  ok('seamMaterial: khai báo uniform khớp 100%, không thừa không thiếu');
-}
-
-/* ── 3. smoothstep nghịch ────────────────────────────────── */
+/* ── 1. smoothstep nghịch ─────────────────────────────────── */
 {
   const bad = [];
   for (const [file, src] of sources) {
@@ -86,7 +49,7 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
   ok('không có smoothstep với edge0 > edge1 trong toàn bộ shader');
 }
 
-/* ── 4. scroll rig: section -> u ─────────────────────────── */
+/* ── 2. scroll rig: section -> u ─────────────────────────── */
 {
   const N = 5;
   const sections = [];
@@ -128,38 +91,7 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
   ok('scroll rig: u = 0 ở đầu trang, 1 ở cuối trang, monotonic, camera an toàn');
 }
 
-/* ── 5. nội dung demo phải vừa trong canvas ───────────────── */
-{
-  const { CW, CH, TOP, PITCH, X, SIZE, DOC } = LAYOUT;
-  const over = [];
-  const rightEdge = new Map();
-
-  DOC.forEach((ln, i) => {
-    const y = TOP + i * PITCH + SIZE[ln.s];
-    if (y > CH - 8) over.push(`dòng ${i + 1} (${ln.s}) tràn đáy: baseline ${y} > ${CH}`);
-    // advance factor thận trọng cho từng họ font
-    const wRaw = ln.raw.length * SIZE[ln.s] * 0.62;
-    const wOut = ln.out.length * SIZE[ln.s] * 0.58;
-    if (X + wRaw > CW - 20) over.push(`dòng ${i + 1} raw tràn phải: ${Math.round(X + wRaw)} > ${CW}`);
-    if (X + wOut > CW - 20) over.push(`dòng ${i + 1} rendered tràn phải: ${Math.round(X + wOut)} > ${CW}`);
-    rightEdge.set(i, Math.max(X + wRaw, X + wOut));
-  });
-
-  // mỗi dòng phải có style hợp lệ, và cả hai canvas phải cùng số dòng —
-  // nếu lệch, mix ra hai ảnh chồng lệch chứ không phải một sự morph
-  DOC.forEach((l, i) => {
-    assert.ok(SIZE[l.s] !== undefined, `dòng ${i + 1} có style không xác định: "${l.s}"`);
-    assert.equal(typeof l.raw, 'string', `dòng ${i + 1} thiếu raw`);
-    assert.equal(typeof l.out, 'string', `dòng ${i + 1} thiếu out`);
-  });
-  assert.equal(DOC.length * PITCH + TOP < CH, true, `tổng chiều cao nội dung không vừa: ${DOC.length} dòng`);
-
-  assert.deepEqual(over, [], `nội dung demo tràn khung:\n    ${over.join('\n    ')}`);
-  const widest = Math.max(...rightEdge.values());
-  ok(`nội dung demo vừa khung (dòng rộng nhất ${Math.round(widest)}px / ${CW}px)`);
-}
-
-/* ── 6. 2 trang HTML phải đồng bộ, và khớp với scroll rig ──── */
+/* ── 3. 2 trang HTML phải đồng bộ, và khớp với scroll rig ──── */
 {
   const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
   const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -187,6 +119,51 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
       `${f}: meta description ghi dung lượng khác hero stats`);
   }
   ok('EN/VI cùng 5 section, cùng id, KEYS khớp, dung lượng nhất quán');
+}
+
+/* "§4: lớp trang trí nền không được dùng additive.
+   Additive chỉ làm sáng -> trên nền sáng (#fafafa) công thức + biểu đồ + quầng
+   sáng đều clamp về trắng và biến mất. Đây chính là lỗi đã gặp. */
+{
+  const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
+
+  for (const f of ['src/objects/glow.js', 'src/objects/hologram.js', 'src/objects/diagram.js']) {
+    assert.ok(!/AdditiveBlending/.test(read(f)),
+      `${f}: dùng AdditiveBlending -> lớp này vô hình trên nền sáng`);
+  }
+
+  // mực của công thức / biểu đồ phải đổi theo theme, nếu không sẽ trùng nền
+  assert.ok(/light \? '#1f2328' : '#ffffff'/.test(read('src/objects/hologram.js')),
+    'hologram.js: mực công thức phải tối lại ở nền sáng');
+  assert.ok(/ink: '#1f2328'/.test(read('src/objects/diagram.js')),
+    'diagram.js: mực nhãn node phải tối lại ở nền sáng');
+
+  // plane glow rộng hơn khung hình ~2.2 lần: profile tối gọn là đúng (nền tối),
+  // nhưng profile tối cho nền sáng sẽ co lại thành vệt nhỏ giữa màn hình.
+  const glowSrc = read('src/objects/glow.js');
+  const prof = (name) => {
+    const line = glowSrc.split('\n').find((l) => l.trim().startsWith(name + ':'));
+    return line
+      ? [...line.matchAll(/\[\s*([\d.]+)\s*,\s*([\d.]+)\s*\]/g)].map((s) => s.slice(1).map(Number))
+      : [];
+  };
+  assert.deepEqual(prof('dark').map((s) => s[1]), [0.85, 0.2, 0],
+    'profile glow nền tối phải giữ nguyên so với bản gốc');
+  const light = prof('light');
+  assert.ok(light.length > 3, 'profile glow nền sáng phải có nhiều stop hơn để trải hết màn hình');
+  const tail = light.find((s) => s[0] >= 0.5);
+  assert.ok(tail && tail[1] > 0.2,
+    'profile glow nền sáng phải còn alpha ở nửa ngoài bán kính, nếu không màu chỉ dồn giữa');
+
+  // col('X') gõ sai key -> Color.set(undefined) ra đen -> glow biến mất im lặng
+  const mainSrc = read('src/main.js');
+  for (const [, k] of mainSrc.matchAll(/col\('(\w+)'\)/g)) {
+    assert.ok(new RegExp(`\\b${k}: 0x`).test(mainSrc),
+      `THEME không có key "${k}" mà main.js vẫn gọi col('${k}')`);
+  }
+
+  ok('glow/hologram/diagram dùng normal blending, mực đổi theo theme, profile nền sáng trải hết khung');
 }
 
 console.log(`\n${checks} checks passed.`);

@@ -11,30 +11,32 @@ const LINES = [
   { t: '∫₀^∞ e^(−x²) dx = √π ⁄ 2', s: 58 },
 ];
 
-function raster() {
-  const cv = document.createElement('canvas');
+function raster(cv, ink) {
+  cv = cv || document.createElement('canvas');
   cv.width = CW; cv.height = CH;
   const g = cv.getContext('2d');
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   LINES.forEach((l, i) => {
     g.font = `italic ${l.s}px "Cambria Math", "Times New Roman", Georgia, serif`;
-    g.fillStyle = '#ffffff';
+    g.fillStyle = ink;
     g.fillText(l.t, CW / 2, CH * (i === 0 ? 0.36 : 0.75));
   });
   return cv;
 }
 
 export function createHologram({ width = 2.9, height = 1.02 } = {}) {
-  const tex = new THREE.CanvasTexture(raster());
+  const cv = raster(null, '#ffffff');
+  const tex = new THREE.CanvasTexture(cv);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.minFilter = THREE.LinearMipmapLinearFilter;
   tex.anisotropy = 4;
+  let isLight = false;
 
   const mat = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
-    blending: THREE.AdditiveBlending,
+    blending: THREE.NormalBlending,
     side: THREE.DoubleSide,
     uniforms: {
       uMap:     { value: tex },
@@ -86,7 +88,13 @@ export function createHologram({ width = 2.9, height = 1.02 } = {}) {
     object: mesh, material: mat,
     update(t) { mat.uniforms.uTime.value = t; },
     setOpacity(v) { mat.uniforms.uOpacity.value = v; mesh.visible = v > 0.004; },
-    setTheme(c) { mat.uniforms.uAccent.value.copy(c); },
+    setTheme(c, light) {
+      mat.uniforms.uAccent.value.copy(c);
+      if (light === isLight) return;
+      isLight = light;
+      raster(cv, light ? '#1f2328' : '#ffffff');
+      tex.needsUpdate = true;
+    },
     dispose() { mesh.geometry.dispose(); mat.dispose(); tex.dispose(); },
   };
 }
