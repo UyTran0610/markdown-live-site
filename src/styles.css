@@ -352,9 +352,9 @@ kbd {
 .panes .tools i:first-child { background: var(--blue); opacity: .85; }
 .panes .pane { min-width: 0; display: grid; gap: var(--gap); align-content: start; padding: 1rem 1.1rem 1.2rem; }
 .panes .pane.src { background: color-mix(in oklab, var(--surface) 94%, var(--text)); }
-.panes i.ln { display: block; height: var(--ln); border-radius: 3px; background: var(--line-2); width: var(--w, 100%); }
-.panes i.ln.h   { height: calc(var(--ln) * 1.15); background: var(--dim); }   /* dòng # tiêu đề */
-.panes i.ln.key { background: var(--blue); }                                  /* dòng đang gõ */
+.panes i.ln, .duo i.ln { display: block; height: var(--ln); border-radius: 3px; background: var(--line-2); width: var(--w, 100%); }
+.panes i.ln.h, .duo i.ln.h   { height: calc(var(--ln) * 1.15); background: var(--dim); }   /* dòng # tiêu đề */
+.panes i.ln.key, .duo i.ln.key { background: var(--blue); }                                  /* dòng đang gõ */
 .panes .split { width: 2px; background: var(--line-2); position: relative; }
 .panes .split::after {              /* nắm kéo giữa vạch */
   content: ''; position: absolute; top: 50%; left: 50%; translate: -50% -50%;
@@ -373,19 +373,76 @@ kbd {
 .panes .fig i, .panes .fig b { height: var(--ln); border-radius: 4px; background: var(--blue); opacity: .8; }
 .panes .fig b { grid-column: 1 / -1; width: 52%; justify-self: center; }
 
+/* ── mock hai cửa sổ chồng (phần 03) ───────────────────────── */
+/* Cùng ngôn ngữ .panes: chỉ token sẵn có, không ảnh, không chữ giả.
+   Cửa sổ nhỏ = app nhẹ, đã mở xong. Cửa sổ to, mờ = app nặng, còn tải.
+   Lệch + tỉ lệ rộng nằm ở biến để media hẹp chỉ ghi đè, không lặp rule.
+   Thứ tự: rule gốc PHẢI trước @media 1039px bên dưới, cùng specificity thì
+   cái sau thắng — đặt sau là bản desktop đè mất bản mobile. */
+.duo {
+  --ln: .92rem; --off: 3rem 0 0 3.6rem; --pw: 68%;
+  margin: 0; width: 100%; max-width: 34rem; display: grid;
+}
+.duo .win {
+  grid-area: 1 / 1;                                   /* hai cửa sổ cùng ô -> chồng nhau */
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--surface); box-shadow: var(--shadow); overflow: hidden;
+}
+.duo .win.big { opacity: .55; }                       /* y hệt .meter-row.dim */
+.duo .win.big .body { min-height: calc(var(--ln) * 11); }  /* cao hơn cửa sổ trên ~2.4rem -> luôn lộ mép dưới */
+.duo .win.top { width: var(--pw); justify-self: start; margin: var(--off); }
+.duo .ttl {                        /* thanh tiêu đề: 3 nút · tên app · chip công nghệ */
+  display: flex; align-items: center; gap: .5rem;
+  padding: .5rem .7rem; background: var(--chrome);   /* token này đang bị bỏ không, dùng lại ở đây */
+  border-bottom: 1px solid var(--line);
+}
+.duo .ttl i   { width: .5rem; height: .5rem; border-radius: 50%; background: var(--line-2); }
+.duo .ttl span { font: 600 .74rem/1 var(--mono); letter-spacing: .04em; color: var(--dim); }
+.duo .win.top .ttl span { color: var(--text); }
+.duo .ttl b {                      /* chip công nghệ */
+  margin-left: auto; padding: .2em .5em; border-radius: 5px;
+  font: 700 .68rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--blue); background: var(--blue-2); border: 1px solid var(--blue);
+}
+.duo .ttl b.heavy {                 /* Electron: hổ phách = nặng */
+  color: var(--amber); border-color: var(--amber);
+  background: color-mix(in oklab, var(--amber) 12%, var(--surface));
+}
+.duo .body { padding: .9rem 1rem 1.1rem; display: grid; gap: .5rem; }
+.duo .foot { padding: .55rem .7rem; border-top: 1px solid var(--line); }
+.duo .track { display: block; height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.duo .track i { display: block; height: 100%; width: 40%; border-radius: 3px; background: var(--dim); }
+.duo .win.top .track i { width: 100%; background: var(--blue); }   /* xong rồi: đầy, không nhấp nháy */
+
 /* hẹp: mock xuống dưới panel nên phải gọn lại, không để tốn cuộn dọc */
 @media (max-width: 1039px) {
   .panes { --ln: .58rem; --gap: .7rem; --fig: 4rem; }
+  .duo   { --ln: .58rem; --off: 1.1rem 0 0 1.1rem; --pw: 84%; }
 }
 
 /* rộng: mock nằm cạnh panel. align-items: center bắt buộc vì .sec mặc định
    stretch -> không có nó mock sẽ giãn bằng panel cao và hở trống dưới. */
 @media (min-width: 1040px) {
-  .sec.split {
-    grid-template-columns: minmax(0, 34rem) minmax(0, 1fr);
+  .sec.split, .sec.perf {
     align-content: center; align-items: center; justify-items: stretch;
     gap: clamp(2rem, 4vw, 4rem);
   }
+  .sec.split { grid-template-columns: minmax(0, 34rem) minmax(0, 1fr); }
+  /* 03 giữ DOM panel-trước-figure (đúng thứ tự đọc) -> chỉ định cột tường minh:
+     mock bên trái, panel bên phải, text-align của data-align="right" vẫn còn tác dụng.
+     align-items: start vì panel cao hơn mock nhiều: center làm mock rơi xuống thấp,
+     neo đỉnh thì nó ngang hàng tiêu đề của section. */
+  .sec.perf {
+    align-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 34rem);
+  }
+  /* grid-area đủ 2 chiều (row/col), KHÔNG dùng grid-column đơn thuần:
+     item chỉ định cột vẫn đi qua con trỏ auto-placement — sau panel con trỏ đã
+     ở cột 3, gặp cột 1 lại thì bị đẩy xuống hàng 2 và mock rơi xuống dưới. */
+  .sec.perf > .panel { grid-area: 1 / 2; }
+  /* hạ mock xuống ngang phần nội dung, khỏi neo bằng tiêu đề. margin (không phải
+     translate) để hàng giãn ra đúng, không tràn sang section kế. */
+  .sec.perf > .duo   { grid-area: 1 / 1; margin-top: 4.5rem; }
 }
 
 /* gợi ý "kéo để chia": kéo vạch phải co hai khung lại, không có hiệu ứng
@@ -399,6 +456,14 @@ kbd {
     0%, 100% { grid-template-columns: calc(50% - 1px - 2.6rem) 2px calc(50% - 1px + 2.6rem); }
     50%      { grid-template-columns: calc(50% - 1px + 2.6rem) 2px calc(50% - 1px - 2.6rem); }
   }
+  /* phần 03: app nặng còn trượt thanh tải, app nhẹ đứng yên đã sẵn sàng */
+  .duo .win.big .track i { animation: duo-load 1.7s ease-in-out infinite; }
+  @keyframes duo-load {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(150%); }   /* 40% + 60% = hết chiều track */
+  }
+  .duo .win.top { animation: duo-float 6s ease-in-out infinite; }
+  @keyframes duo-float { 50% { translate: 0 -.35rem; } }
 }
 
 .foot {

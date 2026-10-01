@@ -117,6 +117,12 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
     assert.equal(claim, first(meter), `${f}: hero stats và meter ghi khác dung lượng`);
     assert.equal(h.match(/name="description" content="[^"]*?(\d+)\s*MB/)[1], claim,
       `${f}: meta description ghi dung lượng khác hero stats`);
+
+    // tên app trong mock 2 cửa sổ (phần 03) phải trùng label .meter
+    const win = h.match(/class="ttl".*?<span>([^<]+)<\/span>/);
+    assert.ok(win, `${f}: không tìm thấy mock 2 cửa sổ (.ttl) trong s-perf`);
+    assert.ok(meter.includes(win[1]),
+      `${f}: tên app trong mock phần 03 khác label .meter (${win[1]})`);
   }
   ok('EN/VI cùng 5 section, cùng id, KEYS khớp, dung lượng nhất quán');
 }
