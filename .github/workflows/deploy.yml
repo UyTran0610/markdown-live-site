@@ -27,7 +27,7 @@ jobs:
           node-version: 22        # vite 8.3.1 cần >=22.12.0
           cache: 'npm'
       - run: npm ci
-      - run: npm test            # 6 self-check, chặn deploy lỗi âm thầm
+      - run: npm test            # 4 self-check, chặn deploy lỗi âm thầm
       - run: npm run build
       # Pages site phải tạo tay 1 lần: Settings > Pages > Source = GitHub Actions.
       # GITHUB_TOKEN không tạo được Pages site (enablement: true luôn fail 403), đừng bật lại.

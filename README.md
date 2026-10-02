@@ -3,7 +3,7 @@
 ```bash
 npm install
 npm run dev      # http://localhost:5173
-npm test         # 3 self-checks, không cần browser
+npm test         # 4 self-checks, không cần browser
 npm run build    # -> dist/
 npm run preview
 ```

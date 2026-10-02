@@ -14,7 +14,41 @@ npm run preview
 
 Node >= 22.12 (vite 8). There is **no lint and no typecheck** — `npm test` then `npm run build` is the whole gate. `dist/` is gitignored build output; never commit it.
 
-`npm test` needs no browser and no dev server. (README says "3 self-checks" and the CI comment says "6" — both stale, it prints `N checks passed`.)
+`npm test` needs no browser and no dev server. It prints `N checks passed` — trust that `N`, don't hardcode a count anywhere.
+
+## `src/` map
+
+Orientation only — the invariants live in the sections below. `main.js` is the sole entry point; nothing outside it imports from `src/` except `scripts/check.mjs`, which runs `rig.js` for real.
+
+| File | Owns |
+| --- | --- |
+| `main.js` | Orchestration: the `THEME` table, scene assembly, the theme lerp, scroll gates, the frame loop. |
+| `rig.js` | `scrollY` → `u ∈ [0,1]` across the `.sec` list → camera position, look-at and fov. |
+| `scene.js` | The WebGL context, camera, key/fill/rim lights, `RoomEnvironment` IBL, the post chain. |
+| `ui.js` | Every DOM interaction above the canvas. No 3D, no libraries. |
+| `styles.css` | Colour tokens, the `.sec` shell, the `.no-gl` fallback, responsive + motion rules. |
+| `objects/hologram.js` | The equation plate. |
+| `objects/diagram.js` | The pipeline flowchart. |
+| `objects/glow.js` | The background halo. |
+
+Two details the filenames don't tell you:
+
+- **`scene.js` exports `envRT` and `resize` for its callers, not for itself.** `main.js` needs both: `envRT` to free the PMREM target on `pagehide`, `resize` because adaptive quality re-runs it after dropping DPR. No shadow map and no transmission, deliberately — each doubles per-frame cost.
+- **`ui.js` silently no-ops when a hook is missing.** It needs `#theme`, `.nav`, `.btn`, `.reveal` and `.scrim` to exist in *both* HTML pages. Rename one in a single page and that feature just stops working, with no error.
+
+### `objects/` — one contract, one technique
+
+All three layers return the same shape, and `main.js` drives them identically:
+
+```js
+{ object, update(t), setOpacity(v), setTheme(color, light), dispose() }
+```
+
+The shared technique: **raster into a `<canvas>`, upload it as a `CanvasTexture`**. Text stays crisp with zero font files, and the whole layer costs one draw call. A theme flip re-rasters *in place* behind an `isLight` guard instead of swapping in a second texture.
+
+- **`hologram.js`** — two formulas set in system math fonts; the shader adds per-frame jitter, a 1.6px chromatic offset, scanlines, an accent-tinted bottom glow and a vertical fade.
+- **`diagram.js`** — a flowchart of the app's *real* pipeline (editor → parser → preview, plus the katex and mermaid.js branches), not decorative boxes. `route()` does orthogonal port routing, a shared destination gets one arrowhead, and node interiors are punched out with `destination-out` so an edge can never cross text. The shader splits RGB by less than a texel and sweeps a signal wave left→right every 4s.
+- **`glow.js`** — a single `MeshBasicMaterial` plane, 17 units wide at `z=-4`. There is no floor, so there is no contact shadow: the wide colour layer *is* the depth. It needs the per-theme `PROFILE` tables because the plane is ~2.2× the frame — the light profile has to reach 0 *before* the frame edge, or ACES turns the outer band into a grey smear that reads as a dirty screen.
 
 ## `npm test` is a source-text checker, not just a unit test
 
@@ -49,7 +83,6 @@ The load-bearing convention. `.sec` count in the HTML == `KEYS.length` in `src/r
 - `src/main.js` holds the `THEME` table (dark + light). Theme changes **lerp** over ~5/s; `applyTheme()` early-returns when settled. Setting a value only in one theme silently has no effect.
 - `prefers-reduced-motion: reduce` **removes the rAF loop entirely** — it re-renders only on `scroll`/`resize`. Any per-frame animation added in `frame()` never runs for those users.
 - WebGL failure is non-fatal: `init3D()` is wrapped in try/catch, body gets `.no-gl`, CSS collapses the canvas. `createUI()` runs **before** 3D on purpose — content must survive a dead WebGL context.
-- Bloom is `0` in the light theme (UnrealBloomPass adds to the whole `#fafafa` background and re-blows dark ink to white). Don't "fix" that to a nonzero value.
 - Adaptive quality in `frame()` will drop DPR then disable bloom on sustained slow frames — that is intentional, not a bug.
 
 ## Deploy
