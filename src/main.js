@@ -24,12 +24,16 @@ const quality = {
 /* theme lấy nguyên từ app gốc.
    light bloom = 0: UnrealBloomPass cộng thêm vào toàn bộ nền #fafafa, nên
    bất kỳ mực tối nào ta vẽ lên đó cũng bị quang hóa thành trắng lại.
-   glowC tách khỏi accent: accent nền sáng (#0a66c2) đủ tối để làm chữ nhưng
-   tạo nền thì bị tối và trông bẩn. glowC là bản sáng hơn của cùng hue.
-   glowI không được vượt 1: alpha > 1 làm 1 - alpha âm trong phép trộn. */
+   Quầng sáng dùng chung accent (--blue) cho cả hai theme. glowI là cường độ
+   đỉnh của profile: không được vượt 1, alpha > 1 làm 1 - alpha âm trong
+   phép trộn.
+   glow có màu riêng (không dùng accent): trên nền sáng, accent 0x0a66c2 có
+   kênh blue ~0.54 < nền ~0.96 nên khi trộn alpha thấp bị kéo xuống thành xám
+   xanh. Màu glow sáng theme light giữ blue ≈ 1, chỉ giảm R/G -> xanh trong.
+   scrimI light thấp: scrim vẽ màu nền ngay tâm, sẽ phủ trắng lên lõi quầng. */
 const THEME = {
-  dark:  { bg: 0x0d1117, accent: 0x388bfd, fill: 0x1b2c43, amber: 0xd29922, keyI: 2.4, fillI: 1.1, rimI: 2.2, env: 0.9,  bloom: 0.55, expo: 1.00, glowC: 0x388bfd, glowI: 0.42, scrimI: 0.88 },
-  light: { bg: 0xfafafa, accent: 0x0a66c2, fill: 0xc7dbff, amber: 0x9a6700, keyI: 3.1, fillI: 1.4, rimI: 1.3, env: 1.7,  bloom: 0.00, expo: 1.18, glowC: 0x5aa5ec, glowI: 1.00, scrimI: 0.45 },
+  dark:  { bg: 0x0d1117, accent: 0x388bfd, glow: 0x388bfd, fill: 0x1b2c43, amber: 0xd29922, keyI: 2.4, fillI: 1.1, rimI: 2.2, env: 0.9,  bloom: 0.55, expo: 1.00, glowI: 0.42, scrimI: 0.88 },
+  light: { bg: 0xfafafa, accent: 0x0a66c2, glow: 0x3d8bff, fill: 0xc7dbff, amber: 0x9a6700, keyI: 3.1, fillI: 1.4, rimI: 1.3, env: 1.7,  bloom: 0.00, expo: 1.18, glowI: 0.70, scrimI: 0.10 },
 };
 
 const SECTIONS = [...document.querySelectorAll('.sec')];
@@ -73,7 +77,7 @@ function init3D() {
 
   /* ── theme lerp ── */
   const cA = new THREE.Color(), cB = new THREE.Color();
-  const out = { bg: new THREE.Color(), accent: new THREE.Color(), amber: new THREE.Color() };
+  const out = { bg: new THREE.Color(), accent: new THREE.Color(), amber: new THREE.Color(), glow: new THREE.Color() };
   const L = THREE.MathUtils.lerp;
   const startLight = document.documentElement.dataset.theme === 'light' ? 1 : 0;
   const S = { t: startLight, goal: startLight };
@@ -90,6 +94,7 @@ function init3D() {
     out.bg.copy(col('bg'));
     out.accent.copy(col('accent'));
     out.amber.copy(col('amber'));
+    out.glow.copy(col('glow'));
 
     scene.background = out.bg;
     scene.fog.color.copy(out.bg);
@@ -102,7 +107,7 @@ function init3D() {
 
     hologram.setTheme(out.accent, S.t > 0.5);
     diagram.setTheme(out.accent, S.t > 0.5);
-    glow.setTheme(col('glowC'), L(THEME.dark.glowI, THEME.light.glowI, S.t), S.t > 0.5);
+    glow.setTheme(out.glow, L(THEME.dark.glowI, THEME.light.glowI, S.t), S.t > 0.5);
   }
   applyTheme(0, true);
 

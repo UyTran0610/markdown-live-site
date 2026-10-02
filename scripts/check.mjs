@@ -145,8 +145,10 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
   assert.ok(/ink: '#1f2328'/.test(read('src/objects/diagram.js')),
     'diagram.js: mực nhãn node phải tối lại ở nền sáng');
 
-  // plane glow rộng hơn khung hình ~2.2 lần: profile tối gọn là đúng (nền tối),
-  // nhưng profile tối cho nền sáng sẽ co lại thành vệt nhỏ giữa màn hình.
+  // plane glow rộng hơn khung hình ~2.2 lần (bán kính khung ~0.45 theo chiều cao).
+  // Profile tối gọn là đúng vì nền tối; profile nền sáng thì phải TẮT trước rìa
+  // khung — ACES bão hòa vùng sáng nên lớp phủ mờ ở rìa ra xám, đọc ra là vết
+  // bẩn chứ không phải quầng sáng.
   const glowSrc = read('src/objects/glow.js');
   const prof = (name) => {
     const line = glowSrc.split('\n').find((l) => l.trim().startsWith(name + ':'));
@@ -157,10 +159,12 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
   assert.deepEqual(prof('dark').map((s) => s[1]), [0.85, 0.2, 0],
     'profile glow nền tối phải giữ nguyên so với bản gốc');
   const light = prof('light');
-  assert.ok(light.length > 3, 'profile glow nền sáng phải có nhiều stop hơn để trải hết màn hình');
+  assert.ok(light.length > 3, 'profile glow nền sáng phải có nhiều stop hơn để thành quầng');
   const tail = light.find((s) => s[0] >= 0.5);
   assert.ok(tail && tail[1] > 0.2,
     'profile glow nền sáng phải còn alpha ở nửa ngoài bán kính, nếu không màu chỉ dồn giữa');
+  assert.ok(light.filter((s) => s[0] >= 0.66).every((s) => s[1] <= 0.15),
+    'profile glow nền sáng phải tắt trước rìa khung, không phủ xám cả màn hình');
 
   // col('X') gõ sai key -> Color.set(undefined) ra đen -> glow biến mất im lặng
   const mainSrc = read('src/main.js');
@@ -169,7 +173,7 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
       `THEME không có key "${k}" mà main.js vẫn gọi col('${k}')`);
   }
 
-  ok('glow/hologram/diagram dùng normal blending, mực đổi theo theme, profile nền sáng trải hết khung');
+  ok('glow/hologram/diagram dùng normal blending, mực đổi theo theme, profile nền sáng có mép quầng');
 }
 
 console.log(`\n${checks} checks passed.`);

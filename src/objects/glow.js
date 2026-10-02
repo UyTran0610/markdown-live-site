@@ -7,12 +7,16 @@ import * as THREE from 'three';
  * về trắng và biến mất hoàn toàn.
  *
  * Profile riêng cho từng theme. Plane 17 đơn vị rộng hơn khung hình ~2.2 lần,
- * nên gradient của profile tối chỉ phủ giữa màn hình. Nền sáng cần profile
- * trải alpha ra tận rìa, không thì cả lớp màu co lại thành một vệt nhỏ.
+ * nên gradient của profile tối chỉ phủ giữa màn hình. Nền sáng thì phải tắt
+ * trước rìa khung: ACES bão hòa vùng sáng nên màu nhạt ở alpha thấp ra xám
+ * (#cfd8e3 ở alpha .55). Trải đều tới rìa chỉ là một lớt xám nhạt phủ cả màn
+ * hình — không có mép, đọc ra là vết bẩn chứ không phải quầng sáng.
  */
 const PROFILE = {
   dark:  [[0, .85], [0.42, .20], [1, 0]],
-  light: [[0, .85], [0.25, .78], [0.45, .55], [0.70, .25], [0.90, .08], [1, 0]],
+  // lõi đặc, rơi mượt, tắt hẳn trước rìa -> có tâm rõ như theme tối,
+  // không còn lớp xám mỏng trải tới mép khung
+  light: [[0, 1], [0.12, .92], [0.26, .72], [0.4, .45], [0.55, .22], [0.7, .07], [0.85, .01], [1, 0]],
 };
 
 function raster(cv, light) {
