@@ -25,20 +25,28 @@
   --ease: cubic-bezier(.22, .8, .26, 1);
 }
 
+/* Theme sáng: cùng ý đồ với theme tối — một nguồn sáng ở giữa trên nền pha xanh.
+   Nền tối là đen ngả xanh (#0d1117) nên nền sáng là trắng ngả xanh, không phải
+   xám trung tính; mực chữ lấy đúng màu nền tối (#0d1117) để hai theme là âm bản
+   của nhau. Đường kẻ và bóng đổ pha xanh thay vì đen thuần, nên thẻ nhìn như
+   tấm kính đứng trong ánh sáng chứ không phải hộp xám.
+   --bg PHẢI bằng THEME.light.bg trong main.js: canvas được bù ACES để lên đúng
+   màu này, nên thanh nav (gradient từ --bg) khớp liền với canvas. */
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg:       #fafafa;
-  --surface:  #f6f8fa;
-  --chrome:   #f3f3f3;
+  --bg:       #e4ecf8;
+  --surface:  #f6f9fe;
+  --chrome:   #edf3fb;
   --blue:     #0a66c2;
-  --blue-2:   #ddebff;
+  --blue-2:   #d9e8ff;
   --amber:    #9a6700;
-  --text:     #1f2328;
-  --dim:      #59636e;
-  --line:     rgba(0, 0, 0, .10);
-  --line-2:   rgba(0, 0, 0, .18);
-  --glass:    rgba(250, 250, 250, .78);
-  --shadow:   0 24px 60px -22px rgba(0, 0, 0, .30);
+  --text:     #0d1117;
+  --dim:      #475569;
+  --line:     rgba(16, 42, 90, .11);
+  --line-2:   rgba(16, 42, 90, .20);
+  --glass:    rgba(255, 255, 255, .66);
+  --shadow:   0 24px 60px -22px rgba(20, 52, 110, .32);
+  --scrim-core: #fbfdff;
 }
 
 * { box-sizing: border-box; }
@@ -90,7 +98,7 @@ body {
 .scrim {
   position: fixed; inset: 0; z-index: 1;
   pointer-events: none;
-  background: radial-gradient(120% 78% at 50% 44%, var(--bg) 0%, transparent 62%);
+  background: radial-gradient(120% 78% at 50% 44%, var(--scrim-core, var(--bg)) 0%, transparent 62%);
   /* độ mờ do main.js điều khiển theo scroll: chỉ cần ở hero */
   opacity: .88;
   will-change: opacity;
@@ -155,6 +163,7 @@ body {
 .btn.icon { position: relative; width: 36px; min-height: 36px; padding: 0; justify-content: center; border-radius: 9px; }
 /* vùng chạm 44px cho nút 36px — touch target ≥ 44px không đánh đổi với kích thước thị giác */
 .btn.icon::after { content: ""; position: absolute; inset: -4px; }
+:root[data-theme="light"] .btn.ghost { --btn-bg: rgba(255, 255, 255, .55); }
 :root[data-theme="dark"]  .i-sun  { display: none; }
 :root[data-theme="light"] .i-moon { display: none; }
 

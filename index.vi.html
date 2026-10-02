@@ -22,7 +22,7 @@
   try { t = localStorage.getItem('ml-theme'); } catch { /* storage bị chặn -> theo system */ }
   r.classList.add('js');
   r.dataset.theme = t || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-  if (r.dataset.theme === 'light') m.content = '#fafafa';
+  if (r.dataset.theme === 'light') m.content = '#e4ecf8';
 </script>
 <link rel="stylesheet" href="./src/styles.css">
 </head>
