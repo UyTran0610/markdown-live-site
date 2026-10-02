@@ -1,20 +1,12 @@
 # AGENTS.md
 
-Landing page for **Markdown Live** (Windows Markdown editor). Plain HTML/CSS/JS + three.js, built by Vite. No framework, no TypeScript, no CSS framework, no templating.
+Landing page for **Markdown Live** (Windows Markdown editor). Plain HTML/CSS/JS + three.js, built by Vite.
 
 ## Commands
 
-```bash
-npm install
-npm run dev        # http://localhost:5173
-npm test           # = node scripts/check.mjs — the only verification step
-npm run build      # -> dist/
-npm run preview
-```
+Scripts live in `package.json`. `npm test` then `npm run build` is the whole gate — there is **no lint and no typecheck**. `npm test` needs no browser and no dev server. Node >= 22.12 (vite 8). `dist/` is gitignored build output; never commit it.
 
-Node >= 22.12 (vite 8). There is **no lint and no typecheck** — `npm test` then `npm run build` is the whole gate. `dist/` is gitignored build output; never commit it.
-
-`npm test` needs no browser and no dev server. It prints `N checks passed` — trust that `N`, don't hardcode a count anywhere.
+`npm test` prints `N checks passed` — trust that `N`, don't hardcode a count anywhere.
 
 ## `src/` map
 
@@ -35,15 +27,19 @@ Orientation only — the invariants live in the sections below. `main.js` is the
 Two details the filenames don't tell you:
 
 - **`scene.js` exports `envRT` and `resize` for its callers, not for itself.** `main.js` needs both: `envRT` to free the PMREM target on `pagehide`, `resize` because adaptive quality re-runs it after dropping DPR. No shadow map and no transmission, deliberately — each doubles per-frame cost.
-- **`ui.js` silently no-ops when a hook is missing.** It needs `#theme`, `.nav`, `.btn`, `.reveal` and `.scrim` to exist in *both* HTML pages. Rename one in a single page and that feature just stops working, with no error.
+- **`ui.js` throws on a missing hook — it does not degrade.** `#theme` (`btnTheme.addEventListener`) and `.nav` (`nav.classList`) are unguarded, so rename one in a single page and the whole script dies with a TypeError. `.reveal`/`.btn` go through `querySelectorAll`, so those are safe. `.scrim` is *not* ui.js's hook — `main.js` owns it in `gates()` and does guard it.
 
 ### `objects/` — one contract, one technique
 
-All three layers return the same shape, and `main.js` drives them identically:
+All three layers return the same shape, and `main.js` drives them identically — except for two deliberate asymmetries:
 
 ```js
-{ object, update(t), setOpacity(v), setTheme(color, light), dispose() }
+{ object, setOpacity(v), dispose() }
+hologram, diagram: + update(t), setTheme(color, light)
+glow:               + pulse(t),  setTheme(color, glowI, light)
 ```
+
+`glow.js` has no `update(t)` because a radial halo has no shader to drive, and it takes `glowI` because the light plane is opaque — the texture carries the colour, so `glowI` is only an alpha the caller still has to set.
 
 The shared technique: **raster into a `<canvas>`, upload it as a `CanvasTexture`**. Text stays crisp with zero font files, and the whole layer costs one draw call. A theme flip re-rasters *in place* behind an `isLight` guard instead of swapping in a second texture. **`glow.js` is the one exception** — see below.
 
@@ -60,7 +56,7 @@ The shared technique: **raster into a `<canvas>`, upload it as a `CanvasTexture`
 
 - **No `smoothstep(hi, lo, x)`** (edge0 > edge1) in any `src/objects/*.js` — undefined per GLSL spec.
 - **No `AdditiveBlending`** in `glow.js` / `hologram.js` / `diagram.js` — additive layers are invisible on the light background (`#e4ecf8`). This was a real shipped bug.
-- Exact literals are asserted: `light ? '#1f2328' : '#ffffff'` in `hologram.js`, `ink: '#1f2328'` in `diagram.js`, the glow profile tables (now `PROFILE_DARK` + `lightStops` — **`check.mjs` still expects the old `dark`/`light` alpha tables and must be updated to match**), and every `col('k')` in `main.js` must match a `k: 0x` key in `THEME` (a typo silently yields black).
+- Exact literals are asserted: `light ? '#1f2328' : '#ffffff'` in `hologram.js`, `ink: '#1f2328'` in `diagram.js`, and every `col('k')` in `main.js` must match a `k: 0x` key in `THEME` (a typo silently yields black).
 
 It also runs `src/rig.js` for real under stubbed browser globals, so **`rig.js` must stay importable in bare Node** — no module-scope DOM access.
 
@@ -78,7 +74,7 @@ The load-bearing convention. `.sec` count in the HTML == `KEYS.length` in `src/r
 
 `index.html` and `index.vi.html` are separate full pages. `npm test` enforces same `id="s-*"` set, same `<section>` count, and matching numbers.
 
-- The app size (`13 MB`) appears **three times per page** — hero stats, `.meter`, and `meta description` — and must be the same value in both languages. Test compares them.
+- The app size (`13 MB`) appears **five times per page** — `meta description`, `og:description`, `.meter-val`, and the two download sentences — and must be the same value in both languages. The test pins three of them (the first `~N MB` in the document, `.meter`, `meta description`); `og:description` and the download copy are unverified.
 - The `<head>` theme bootstrap script (reads `localStorage['ml-theme']` before first paint) and the `meta[name=theme-color]` sync are duplicated verbatim in both files. Change one, change both. The light `theme-color` literal in that script (`'#e4ecf8'`) must equal `--bg` for light.
 - `<html data-theme>` + the CSS custom property `--bg` are the single source of colour truth for the DOM. The one place JS repeats a hex is `THEME.light.bg` in `main.js` — it **must equal** light `--bg` in `styles.css` and the `theme-color` literal in both HTML heads (`#e4ecf8` today). Change one, change all three.
 
@@ -91,8 +87,6 @@ The load-bearing convention. `.sec` count in the HTML == `KEYS.length` in `src/r
 
 ## Deploy
 
-Push to `main` → `.github/workflows/deploy.yml` runs `npm ci` → `npm test` (hard gate) → `npm run build` → GitHub Pages. `npm test` failing blocks the deploy.
-
 The Pages site must be created **once by hand**: Settings > Pages > Source = GitHub Actions. `GITHUB_TOKEN` cannot create it — `enablement: true` always 403s. A previous commit removed that; don't re-add it.
 
 `vite.config.js`: `base: './'` (relative paths for the Pages subpath), two HTML entries sharing one JS/CSS bundle, `three` split into its own long-lived chunk. Don't consolidate the entries — the VI page intentionally reuses the EN bundle.
@@ -100,5 +94,4 @@ The Pages site must be created **once by hand**: Settings > Pages > Source = Git
 ## Conventions
 
 - Comments and internal prose are in Vietnamese; user-facing copy is EN in `index.html`, VI in `index.vi.html`.
-- No dependencies beyond `three`. UI is plain DOM in `src/ui.js`.
 - Commit messages: short imperative summary, lowercase, no required prefix — but `fix:`/`feat:` prefixes appear in recent history and are fine.

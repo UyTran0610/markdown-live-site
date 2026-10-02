@@ -146,25 +146,30 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
     'diagram.js: mực nhãn node phải tối lại ở nền sáng');
 
   // plane glow rộng hơn khung hình ~2.2 lần (bán kính khung ~0.45 theo chiều cao).
-  // Profile tối gọn là đúng vì nền tối; profile nền sáng thì phải TẮT trước rìa
-  // khung — ACES bão hòa vùng sáng nên lớp phủ mờ ở rìa ra xám, đọc ra là vết
-  // bẩn chứ không phải quầng sáng.
+  // Theme tối: texture trắng + alpha nhân màu accent. Theme sáng KHÔNG dùng
+  // profile alpha nữa — plane là dải màu ĐẶC, rìa trùng đúng màu nền (glow.js).
+  // Nên thay vì "tắt alpha trước rìa khung", điều phải giữ là mọi stop sáng hơn
+  // nền: ACES bão hòa vùng sáng, quầng tối hơn nền thì mắt đọc ra là vết bẩn.
   const glowSrc = read('src/objects/glow.js');
-  const prof = (name) => {
-    const line = glowSrc.split('\n').find((l) => l.trim().startsWith(name + ':'));
-    return line
-      ? [...line.matchAll(/\[\s*([\d.]+)\s*,\s*([\d.]+)\s*\]/g)].map((s) => s.slice(1).map(Number))
-      : [];
-  };
-  assert.deepEqual(prof('dark').map((s) => s[1]), [0.85, 0.2, 0],
-    'profile glow nền tối phải giữ nguyên so với bản gốc');
-  const light = prof('light');
-  assert.ok(light.length > 3, 'profile glow nền sáng phải có nhiều stop hơn để thành quầng');
-  const tail = light.find((s) => s[0] >= 0.5);
-  assert.ok(tail && tail[1] > 0.2,
-    'profile glow nền sáng phải còn alpha ở nửa ngoài bán kính, nếu không màu chỉ dồn giữa');
-  assert.ok(light.filter((s) => s[0] >= 0.66).every((s) => s[1] <= 0.15),
-    'profile glow nền sáng phải tắt trước rìa khung, không phủ xám cả màn hình');
+  const darkLine = glowSrc.split('\n').find((l) => l.includes('const PROFILE_DARK'));
+  const dark = [...darkLine.matchAll(/\[\s*([\d.]+)\s*,\s*([\d.]+)\s*\]/g)].map((s) => Number(s[2]));
+  assert.deepEqual(dark, [0.85, 0.2, 0], 'profile glow nền tối phải giữ nguyên so với bản gốc');
+
+  const ramp = glowSrc.slice(glowSrc.indexOf('const lightStops'));
+  const light = [...ramp.slice(0, ramp.indexOf('];'))
+    .matchAll(/\[\s*([\d.]+)\s*,\s*(0x[0-9a-f]+|ground)\s*\]/g)].map(([, at, c]) => [Number(at), c]);
+  const ground = Number(/ground = (0x[0-9a-f]+)/.exec(glowSrc)[1]);
+  // luminance ở không gian hiển thị sRGB, không phải linear
+  const lum = (hex) => [16, 8, 0].map((s) => (hex >> s) & 255)
+    .reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
+  assert.ok(light.length > 3, 'dải màu nền sáng phải có nhiều stop, không phải một mảng phẳng');
+  assert.equal(light.at(-1)[1], 'ground',
+    'rìa plane nền sáng phải trùng màu nền, nếu không sẽ có seam xám ở mép khung');
+  for (const [, c] of light) {
+    if (c === 'ground') continue;
+    assert.ok(lum(Number(c)) > lum(ground),
+      `stop ${c} tối hơn nền #${ground.toString(16)} -> quầng thành vết mực, không phải ánh sáng`);
+  }
 
   // col('X') gõ sai key -> Color.set(undefined) ra đen -> glow biến mất im lặng
   const mainSrc = read('src/main.js');
@@ -173,7 +178,13 @@ const ok = (msg) => { checks++; console.log('  ok  ' + msg); };
       `THEME không có key "${k}" mà main.js vẫn gọi col('${k}')`);
   }
 
-  ok('glow/hologram/diagram dùng normal blending, mực đổi theo theme, profile nền sáng có mép quầng');
+  // plane sáng là dải đặc: màu nằm hẳn trong texture, glowI chỉ còn là alpha
+  const glowI = Number(/glowI:\s*([\d.]+)/.exec(
+    mainSrc.split('\n').find((l) => /^\s*light: \{/.test(l)))[1]);
+  assert.ok(glowI <= 1,
+    `THEME.light.glowI = ${glowI} > 1 -> alpha vượt 1 là vô nghĩa và phủ xám nền sáng`);
+
+  ok('glow/hologram/diagram dùng normal blending, mực đổi theo theme, dải glow nền sáng sáng hơn nền và rìa trùng nền');
 }
 
 console.log(`\n${checks} checks passed.`);
