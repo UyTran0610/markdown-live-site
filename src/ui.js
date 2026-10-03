@@ -45,8 +45,8 @@ export function createUI({ onTheme, onPointer }) {
   }, { passive: true });
 
   function applyTheme() {
+    // Cố ý không lưu: mỗi lần vào lại bắt đầu từ nền tối (data-theme trên <html>).
     root.dataset.theme = light ? 'light' : 'dark';
-    try { localStorage.setItem('ml-theme', light ? 'light' : 'dark'); } catch { /* storage bị chặn */ }
     // thanh trình duyệt trên mobile: đọc token --bg để không lặp mã màu ở JS
     metaTheme.content = getComputedStyle(root).getPropertyValue('--bg').trim();
     onTheme?.(light);

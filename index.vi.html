@@ -16,13 +16,9 @@
 <link rel="preload" as="image" href="./images/dark-mode.png">
 <link rel="preload" as="image" href="./images/light-mode.png">
 <script>
-  const r = document.documentElement;
-  const m = document.querySelector('meta[name="theme-color"]');
-  let t = null;
-  try { t = localStorage.getItem('ml-theme'); } catch { /* storage bị chặn -> theo system */ }
-  r.classList.add('js');
-  r.dataset.theme = t || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-  if (r.dataset.theme === 'light') m.content = '#e4ecf8';
+  // Theme không lưu lại: mỗi lần vào đều bắt đầu từ data-theme="dark" trên <html>.
+  // Script này chỉ đánh dấu có JS để .reveal ẩn trước khi IntersectionObserver chạy.
+  document.documentElement.classList.add('js');
 </script>
 <link rel="stylesheet" href="./src/styles.css">
 </head>

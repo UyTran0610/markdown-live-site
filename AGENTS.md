@@ -75,8 +75,9 @@ The load-bearing convention. `.sec` count in the HTML == `KEYS.length` in `src/r
 `index.html` and `index.vi.html` are separate full pages. `npm test` enforces same `id="s-*"` set, same `<section>` count, and matching numbers.
 
 - The app size (`13 MB`) appears **five times per page** — `meta description`, `og:description`, `.meter-val`, and the two download sentences — and must be the same value in both languages. The test pins three of them (the first `~N MB` in the document, `.meter`, `meta description`); `og:description` and the download copy are unverified.
-- The `<head>` theme bootstrap script (reads `localStorage['ml-theme']` before first paint) and the `meta[name=theme-color]` sync are duplicated verbatim in both files. Change one, change both. The light `theme-color` literal in that script (`'#e4ecf8'`) must equal `--bg` for light.
-- `<html data-theme>` + the CSS custom property `--bg` are the single source of colour truth for the DOM. The one place JS repeats a hex is `THEME.light.bg` in `main.js` — it **must equal** light `--bg` in `styles.css` and the `theme-color` literal in both HTML heads (`#e4ecf8` today). Change one, change all three.
+- The `<head>` script that adds the `js` class is duplicated verbatim in both files. Change one, change both. It does **not** touch the theme.
+- The site opens on **dark every visit, by design** — no `localStorage`, no `prefers-color-scheme`. `data-theme="dark"` on `<html>` in both files is the only starting state; `ui.js` only mutates it in-session. Do not re-add persistence, and don't "restore the user's theme".
+- `<html data-theme>` + the CSS custom property `--bg` are the single source of colour truth for the DOM. The one place JS repeats a hex is `THEME.light.bg` in `main.js` — it **must equal** light `--bg` in `styles.css`. Change one, change both.
 
 ## Theme / rendering invariants
 
