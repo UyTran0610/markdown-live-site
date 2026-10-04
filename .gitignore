@@ -17,6 +17,9 @@ dist/
 Thumbs.db
 desktop.ini
 
+# agent config / skills (theo máy, không đưa lên repo)
+.opencode/
+
 # logs
 *.log
 npm-debug.log*

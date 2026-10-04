@@ -9,8 +9,12 @@
   --surface:  #161b22;
   --chrome:   #1a212c;
   --blue:     #388bfd;
-  --blue-2:   #1b2c43;
+  /* Nền .btn.primary tách riêng: #fff trên #388bfd chỉ 3.34:1, dưới ngưỡng
+     4.5:1 cho chữ nhỏ. --blue vẫn đạt 5.66:1 khi làm màu chữ/điểm nhấn. */
+  --blue-fill: #1074d8;
+  --blue-2:   #18263a;   /* #388bfd trên nền này đạt 4.56:1; #1b2c43 cũ chỉ 4.22 */
   --amber:    #d29922;
+  --green:    #3fb950;
   --text:     #e6edf3;
   --dim:      #9aa7b4;
   --line:     rgba(255, 255, 255, .09);
@@ -38,8 +42,10 @@
   --surface:  #f6f9fe;
   --chrome:   #edf3fb;
   --blue:     #0a66c2;
+  --blue-fill: #0a66c2;   /* #fff trên nền này đã 5.69:1 — dùng chung --blue */
   --blue-2:   #d9e8ff;
   --amber:    #9a6700;
+  --green:    #1a7f37;    /* #2da44e hardcode cũ chỉ 2.70:1 trên nền sáng */
   --text:     #0d1117;
   --dim:      #475569;
   --line:     rgba(16, 42, 90, .11);
@@ -139,6 +145,7 @@ body {
 /* ── buttons ────────────────────────────────────────────────── */
 .btn {
   --btn-bg: transparent;
+  position: relative;
   display: inline-flex; align-items: center; gap: .5rem;
   min-height: 44px; padding: 0 1.15rem;
   border: 1px solid var(--line-2); border-radius: 10px;
@@ -155,14 +162,18 @@ body {
 .btn:hover { transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
 .btn.primary {
-  background-color: var(--blue); border-color: transparent; color: #fff;
-  box-shadow: 0 10px 26px -12px var(--blue);
+  background-color: var(--blue-fill); border-color: transparent; color: #fff;
+  box-shadow: 0 10px 26px -12px var(--blue-fill);
+  /* sheen của .btn phủ trắng lên nền nút, tức là phủ lên chính chữ trắng của
+     nút chính: 3.34:1 lúc nghỉ, rơi còn 2.52:1 dưới con trỏ. Tắt hẳn —
+     nút hover vẫn sống nhờ nâng nền và đổ bóng. */
+  background-image: none;
 }
-.btn.primary:hover { box-shadow: 0 16px 34px -12px var(--blue); }
+.btn.primary:hover { box-shadow: 0 16px 34px -12px var(--blue-fill); }
 .btn.ghost:hover { border-color: var(--blue); color: var(--blue); }
 .btn.icon { position: relative; width: 36px; min-height: 36px; padding: 0; justify-content: center; border-radius: 9px; }
 /* vùng chạm 44px cho nút 36px — touch target ≥ 44px không đánh đổi với kích thước thị giác */
-.btn.icon::after { content: ""; position: absolute; inset: -4px; }
+.btn.sm::after, .btn.icon::after { content: ""; position: absolute; inset: -4px; }
 :root[data-theme="light"] .btn.ghost { --btn-bg: rgba(255, 255, 255, .55); }
 :root[data-theme="dark"]  .i-sun  { display: none; }
 :root[data-theme="light"] .i-moon { display: none; }
@@ -204,7 +215,10 @@ h2 {
   line-height: 1.08; letter-spacing: -.03em; font-weight: 700;
 }
 h4, h5 { margin: 0 0 .5rem; letter-spacing: -.02em; }
-.sub { margin: 1.9rem 0 .9rem; font-size: 1.05rem; }
+/* .sub giờ là <h3> (xem index.html) để outline không nhảy h2 -> h4 -> h3.
+   Giữ letter-spacing mà rule `h4, h5` từng đặt cho nó, nếu không tiêu đề lệch
+   so với bản trước. */
+.sub { margin: 1.9rem 0 .9rem; font-size: 1.05rem; letter-spacing: -.02em; }
 /* cân dòng cho tiêu đề: không để 1 từ rơi xuống dòng cuối (Chrome/Edge/WebView2/Firefox ≥121) */
 h1, h2, .sub { text-wrap: balance; }
 /* ngắt dòng phụ trong h1: desktop 2 dòng, mobile tách "on the right." ra dòng 3 */
@@ -270,7 +284,7 @@ kbd {
   border-left: 2px solid;
 }
 .tag-note { color: var(--blue);   border-color: var(--blue);   background: var(--blue-2); }
-.tag-tip  { color: #2da44e;       border-color: #2da44e; }
+.tag-tip  { color: var(--green);   border-color: var(--green); }
 .tag-warn { color: var(--amber);  border-color: var(--amber); }
 
 /* ── perf meter ─────────────────────────────────────────────── */
@@ -279,13 +293,19 @@ kbd {
   display: grid; grid-template-columns: 11rem 1fr auto;
   align-items: center; gap: .8rem; font-size: .88rem;
 }
-.meter-row.dim { opacity: .55; }
+/* Hàng Electron là hàng đối chiếu: làm mờ bằng màu chữ, KHÔNG dùng opacity —
+   opacity áp lên cả cây con nên số liệu tụt còn 2.42:1 ở theme sáng. */
+.meter-row.dim .meter-label { color: var(--dim); }
 .meter-label b { color: var(--blue); }
 .meter-bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+/* Mỗi thanh một màu riêng: xanh = Tauri, hổ phách = Electron — đúng ngôn ngữ màu
+   đã dùng ở .duo .ttl b. Gradient cũ mã hoá độ dài chứ không mã hoá danh mục,
+   nên thanh dài trông như đang "biến dần thành Electron". */
 .meter-bar i {
   display: block; height: 100%; width: var(--v); border-radius: 4px;
-  background: linear-gradient(90deg, var(--blue), var(--amber));
+  background: var(--blue);
 }
+.meter-row.dim .meter-bar i { background: var(--amber); }
 .meter-val { font: 600 .84rem/1 var(--mono); color: var(--dim); min-width: 4.4rem; text-align: right; }
 .meter-note { margin: .3rem 0 0; font-size: .8rem; color: var(--dim); }
 
@@ -480,7 +500,8 @@ kbd {
   gap: .45rem 1.1rem; justify-content: center;
   margin: 2.2rem 0 0; font-size: .82rem; color: var(--dim);
 }
-.foot a { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--line-2); }
+/* padding cho vùng chạm 24px (WCAG 2.5.8 AA-min): dòng chữ 13px chỉ cao 21px */
+.foot a { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--line-2); padding: .35rem 0; }
 .foot a:hover { color: var(--text); border-color: var(--blue); }
 
 .noscript {
@@ -503,7 +524,10 @@ kbd {
 
 /* ── responsive ─────────────────────────────────────────────── */
 @media (max-width: 860px) {
+  /* .nav-links display:none -> margin-left:auto của nó biến mất theo box;
+     không đẩy thì cụm nút dính liền brand, không dán mép phải. */
   .nav-links { display: none; }
+  .nav-actions { margin-left: auto; }
   .sec { align-content: center; justify-items: start; text-align: left; }
   .sec[data-align="center"] { justify-items: center; text-align: center; }
   .sec[data-align="right"]  { justify-items: start; text-align: left; }
@@ -516,7 +540,8 @@ kbd {
 @media (max-width: 520px) {
   .br-sm { display: inline; }   /* h1: 3 dòng cân, không rơi chữ cuối */
   .nav { gap: .6rem; }
-  .nav-actions { gap: .4rem; }
+  /* giữ gap .5rem của .nav-actions: vùng chạm 44px (::after inset -4px) cần
+     tối thiểu 8px giữa các nút, .4rem là 6.4px nên chúng sẽ chồng nhau */
   .stats { gap: 1.1rem 1.6rem; }
   .cta .btn { flex: 1 1 auto; justify-content: center; }
 }
