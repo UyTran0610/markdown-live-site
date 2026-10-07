@@ -234,6 +234,16 @@ h1, h2, .sub { text-wrap: balance; }
   margin: 0 0 2.1rem; max-width: 34ch;
   font-size: clamp(1rem, 1.3vw, 1.15rem); color: var(--dim);
 }
+/* hero giờ có 2 đoạn giới thiệu: nới độ rộng cho đỡ dài dòng, và kéo đoạn 2
+   sát đoạn 1 (margin-bottom 2.1rem của .lede chỉ hợp để tách khỏi nút CTA) */
+.hero .lede { max-width: 44ch; }
+.lede + .lede { margin-top: -1.1rem; }
+/* <code> trong lede: ký hiệu Markdown như # ** - */
+.lede code {
+  font: 600 .86em/1 var(--mono); color: var(--text);
+  padding: .16em .4em; border: 1px solid var(--line-2); border-radius: 5px;
+  background: var(--surface);
+}
 .sec[data-align="right"] .lede,
 .sec[data-align="right"] .panel > p { margin-left: auto; }
 
@@ -288,6 +298,8 @@ kbd {
 }
 .card .eq { margin: 0; font-family: var(--mono); font-size: .95rem; color: var(--text); }
 .card p { margin: 0; font-size: .9rem; color: var(--dim); }
+/* thẻ có cả dòng ví dụ (.eq) lẫn đoạn mô tả: chừa khoảng cách giữa hai dòng */
+.card .eq + p { margin-top: .45rem; }
 .eq-r { color: var(--dim); font-size: .8em; }
 .tag-note, .tag-tip, .tag-warn {
   display: inline-block; padding: .12em .5em; border-radius: 5px;
