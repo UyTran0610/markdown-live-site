@@ -468,7 +468,23 @@ kbd {
 /* hẹp: mock xuống dưới panel nên phải gọn lại, không để tốn cuộn dọc */
 @media (max-width: 1039px) {
   .panes { --ln: .58rem; --gap: .7rem; --fig: 4rem; }
-  .duo   { --ln: .58rem; --off: 1.1rem 0 0 1.1rem; --pw: 84%; }
+  /* --off đỉnh phải CAO HƠN chiều cao .ttl (1.95rem) + biên độ duo-float (.35rem),
+     y như bản desktop 3rem. Đây là bố cục gốc: thanh tiêu đề của cửa sổ sau —
+     gồm chữ "Typical Electron app" và chip "Electron" sát mép phải — nằm hẳn
+     phía TRÊN cửa sổ trên nên luôn đọc được. Ở đây nó hạ xuống 1.1rem, chỉ lộ
+     1.1rem đầu thanh tiêu đề, còn --pw: 84% chỉ chừa ~2.5rem ở mép phải: đúng
+     bằng cái chip nên chỉ còn đọc được "TRON". */
+  .duo { --ln: .58rem; --off: 2.5rem 0 0 1.1rem; --pw: 84%; }
+  /* offset đỉnh lớn hơn thì mép dưới cửa sổ sau bị che -> nới body ra, giữ đúng
+     bất biến "luôn lộ mép dưới" mà rule gốc ghi. 14 × .58 - (3 dòng + gap +
+     padding) = 3.38rem > 2.5rem. */
+  .duo .win.big .body { min-height: calc(var(--ln) * 14); }
+  /* .ttl dùng cỡ chữ cố định chứ không đi theo --ln như phần còn lại của mock:
+     "Typical Electron app" + chip + 3 nút + padding cần ~314px, vượt cả .duo ở
+     máy 320px. Thu lại cho vừa (~278px) thay vì để chữ tràn ra sau chip. */
+  .duo .ttl      { gap: .35rem; padding: .5rem .6rem; }
+  .duo .ttl span { font-size: .66rem; }
+  .duo .ttl b    { font-size: .6rem; }
 }
 
 /* rộng: mock nằm cạnh panel. align-items: center bắt buộc vì .sec mặc định
@@ -502,13 +518,15 @@ kbd {
    không cần @property. Tắt animation -> rơi về 1fr auto 1fr, vạch ở giữa.
    Block prefers-reduced-motion cuối file đã tắt toàn bộ animation. */
 @media (prefers-reduced-motion: no-preference) {
-  /* MỘT LẦN, đúng lúc section 01 hiện ra — ui.js tự thêm .on vào mọi .reveal.
-     Bản 'infinite' animate grid-template-columns nên bẩn layout mỗi frame suốt
-     trang, kể cả khi .panes đang opacity 0 (Chrome không dừng animation ngoài
-     viewport), và biến read() của rig thành layout thật thay vì chỉ đọc offsetTop.
-     Track của grid không composite được nên không đổi sang transform được mà
-     không dựng lại DOM; chạy 1 lần là đủ để dạy ý "kéo vạch để chia". */
-  .panes.on { animation: pane-drag 9s ease-in-out 1 both; }
+  /* Lặp vô hạn nhưng MẶC ĐỊNH ĐỨNG: chỉ chạy khi section 01 đang ở trong
+     viewport (ui.js toggle .live cùng lúc thêm .on). Không có .live thì vạch
+     đứng yên hẳn — đừng đổi, '1 both' chạy 9s rồi đứng thấy như treo máy.
+     Bản 'infinite' trần animate grid-template-columns nên bẩn layout mỗi frame
+     và Chrome không dừng animation ngoài viewport: 4/5 cuộn trang không nhìn
+     thấy gì cũng phải trả tiền. Track của grid không composite được nên không
+     đổi sang transform được mà không dựng lại DOM. */
+  .panes.on { animation: pane-drag 9s ease-in-out infinite paused; }
+  .panes.on.live { animation-play-state: running; }
   @keyframes pane-drag {
     0%, 100% { grid-template-columns: calc(50% - 1px - 2.6rem) 2px calc(50% - 1px + 2.6rem); }
     50%      { grid-template-columns: calc(50% - 1px + 2.6rem) 2px calc(50% - 1px - 2.6rem); }

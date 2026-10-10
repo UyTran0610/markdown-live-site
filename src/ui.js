@@ -15,8 +15,13 @@ export function createUI({ onTheme, onPointer }) {
   applyTheme();
 
   /* ── reveal ────────────────────────────────────────────── */
+  /* .on dính 1 lần cho tới hết phiên; .live bật/tắt theo viewport và chỉ
+     .panes.on dùng nó — đó là công tắc "chạy/dừng" cho animation ở styles.css. */
   const io = new IntersectionObserver(
-    (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('on')),
+    (entries) => entries.forEach((e) => {
+      if (e.isIntersecting) e.target.classList.add('on');
+      e.target.classList.toggle('live', e.isIntersecting);
+    }),
     { rootMargin: '0px 0px -18% 0px', threshold: 0.05 }
   );
   document.querySelectorAll('.reveal').forEach((el, i) => {
